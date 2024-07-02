@@ -5,6 +5,8 @@ plugins {
     kotlin("plugin.jpa") version "1.9.24"
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
+    kotlin("plugin.noarg")  version "1.8.22"
+    kotlin("plugin.allopen") version "1.8.22"
 }
 
 group = "com.team4"
@@ -28,6 +30,18 @@ repositories {
 
 extra["snippetsDir"] = file("build/generated-snippets")
 
+noArg {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -39,6 +53,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 }
 
 kotlin {
