@@ -36,7 +36,7 @@ class CategoryController(
     }
 
     @DeleteMapping("/{category-id}")
-    fun deleteCategory(@PathVariable(name = "category-id") categoryId: Long): ResponseEntity<CategoryResponse> {
+    fun deleteCategory(@PathVariable(name = "category-id") categoryId: Long): ResponseEntity<Unit> {
         return try {
             ResponseEntity.status(HttpStatus.NO_CONTENT).body(categoryService.deleteCategory(categoryId))
         } catch (ex: IllegalArgumentException) {
