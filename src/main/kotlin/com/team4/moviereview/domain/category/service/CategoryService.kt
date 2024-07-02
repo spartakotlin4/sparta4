@@ -32,7 +32,7 @@ class CategoryService(
 
     @Transactional
     fun updateCategoryName(categoryId: Long, request: CategoryUpdateRequest): CategoryResponse {
-        // TODO : 카테고리가 db에 있는지 확인
+        // TODO : 카테고리가 DB에 있는지 확인
         // TODO : 만약 카테고리가 없다면 예외 발생
         // TODO : 만약 변경 이름과 기존 이름이 같다면 예외 발생
         // TODO : 문제가 없다면 DB에 저장 후 반환
@@ -45,8 +45,16 @@ class CategoryService(
         return CategoryResponse.from(category)
     }
 
-    fun deleteCategory(categoryId: Long): CategoryResponse {
-        TODO()
+    @Transactional
+    fun deleteCategory(categoryId: Long): Unit {
+        // TODO : 카테고리가 DB에 있는지 확인
+        // TODO : 만약 없다면 예외 발생
+        // TODO : 존재할 경우 DB에 삭제
+
+        val category: Category =
+            categoryRepository.findByIdOrNull(categoryId) ?: throw IllegalArgumentException("Category Not Found")
+
+        categoryRepository.delete(category)
     }
 
 }
