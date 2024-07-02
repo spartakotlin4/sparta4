@@ -14,4 +14,11 @@ class Category(
     var id: Long? = null,
 ) {
 
+    fun updateName(name: String) {
+        if (this.name == name) {
+            throw IllegalArgumentException("Category same name")
+        }
+
+        this.name = name
+    }
 }
