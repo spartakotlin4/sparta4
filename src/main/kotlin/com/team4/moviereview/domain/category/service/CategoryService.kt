@@ -35,10 +35,15 @@ class CategoryService(
         // TODO : 카테고리가 DB에 있는지 확인
         // TODO : 만약 카테고리가 없다면 예외 발생
         // TODO : 만약 변경 이름과 기존 이름이 같다면 예외 발생
+        // TODO : 만약 이미 있는 이름이라면 예외처리
         // TODO : 문제가 없다면 DB에 저장 후 반환
 
         val category: Category =
             categoryRepository.findByIdOrNull(categoryId) ?: throw IllegalArgumentException("Category Not Found")
+
+        if (categoryRepository.existsByName(request.name)) {
+            throw IllegalArgumentException("Category name already exists")
+        }
 
         category.updateName(request.name)
 
