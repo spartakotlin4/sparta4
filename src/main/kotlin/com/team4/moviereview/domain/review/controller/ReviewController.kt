@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RequestMapping("/movies/{movieId}/reviews")
+@RestController
 class ReviewController(
     private val reviewService: ReviewService
 ) {
