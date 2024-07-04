@@ -10,7 +10,7 @@ interface MovieService {
 
     fun getMovieDetails(movieId: Long, pageable: Pageable): MovieDetailResponse
 
-    fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse>
+    fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse>
 
     fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
 }

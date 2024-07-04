@@ -6,10 +6,7 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.model.QCategory
 import com.team4.moviereview.domain.member.model.QMember
-import com.team4.moviereview.domain.movie.dto.CursorRequest
-import com.team4.moviereview.domain.movie.dto.FilterRequest
-import com.team4.moviereview.domain.movie.dto.MovieDetailResponse
-import com.team4.moviereview.domain.movie.dto.MovieResponse
+import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.dto.ReviewResponse
@@ -125,7 +122,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
     }
 
-    override fun searchMovies(request: SearchRequest, pageable: Pageable): Page<MovieResponse> {
+    override fun searchMovies(keyword: String, pageable: Pageable): Page<MovieResponse> {
         TODO("Not yet implemented")
     }
 

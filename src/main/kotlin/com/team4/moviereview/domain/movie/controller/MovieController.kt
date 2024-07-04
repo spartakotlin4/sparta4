@@ -41,12 +41,12 @@ class MovieController(
 
     @GetMapping("/search")
     fun searchMovies(
-        @ModelAttribute request: SearchRequest,
+        @RequestParam(value = "keyword", required = true) keyword: String,
         @RequestParam pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return try {
             ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.searchMovies(request, pageable))
+                .body(movieService.searchMovies(keyword, pageable))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }

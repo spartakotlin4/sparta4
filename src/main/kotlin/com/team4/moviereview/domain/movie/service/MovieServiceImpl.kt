@@ -24,7 +24,7 @@ class MovieServiceImpl(
         return movieDetails
     }
 
-    override fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse> {
+    override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
         TODO()
     }
 
@@ -33,9 +33,11 @@ class MovieServiceImpl(
     }
 
     private fun getMovieAverageRate(movieId: Long): Double {
+        TODO()
     }
 
     private fun getMovieCategories(movieId: Long): List<Category> {
+        TODO()
     }
 
     private fun createCursorPageResponse(

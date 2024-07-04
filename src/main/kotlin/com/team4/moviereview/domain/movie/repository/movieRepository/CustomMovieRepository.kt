@@ -10,7 +10,7 @@ interface CustomMovieRepository {
 
     fun getMovieDetails(pageable: Pageable, movieId: Long): MovieDetailResponse
 
-    fun searchMovies(request: SearchRequest, pageable: Pageable): Page<MovieResponse>
+    fun searchMovies(keyword: String, pageable: Pageable): Page<MovieResponse>
 
     fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse>
 }
