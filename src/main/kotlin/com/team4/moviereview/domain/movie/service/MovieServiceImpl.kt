@@ -17,20 +17,15 @@ class MovieServiceImpl(
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movieList = movieRepository.getMoviesByCursor(pageable, cursor)
-        val pagingMovieList = createCursorPageResponse(movieList, cursor.orderBy)
+        val pagingMovieList = createCursorPageResponse(movieList, cursor.orderBy, pageable)
 
         return pagingMovieList
     }
 
     override fun getMovieDetails(movieId: Long, pageable: Pageable): MovieDetailResponse {
-        val movie = movieRepository.findByIdOrNull(movieId) ?: throw RuntimeException("Movie not found")
-        // queryDsl 을 사용해 리뷰와 무비 한번에 가져올 수 있음 projections 와 서브쿼리 활용
-        val reviews = reviewRepository.findAllByMovieId(movieId).toResponse()
-        val rate = getMovieAverageRate(movieId)
-        val categories = getMovieCategories(movieId)
-        //return movieRepository.getMovieDetails(movieId, pageable)
+        val movieDetails = movieRepository.getMovieDetails(pageable, movieId)
 
-        return MovieDetailResponse.from(movie, categories, rate, reviews)
+        return movieDetails
     }
 
     override fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse> {
@@ -47,8 +42,12 @@ class MovieServiceImpl(
     private fun getMovieCategories(movieId: Long): List<Category> {
     }
 
-    private fun createCursorPageResponse(movieList: List<MovieResponse>, cursorType: String): CursorPageResponse {
-        val nextCursor = if (movieList.isNotEmpty()) {
+    private fun createCursorPageResponse(
+        movieList: List<MovieResponse>,
+        cursorType: String,
+        pageable: Pageable
+    ): CursorPageResponse {
+        val nextCursor = if (movieList.size == pageable.pageSize) {
             when (cursorType) {
                 "releaseDate" -> movieList.last().releaseDate.toString()
                 "rating" -> getMovieAverageRate(movieList.last().id).toString()
@@ -56,7 +55,7 @@ class MovieServiceImpl(
             }
         } else null
 
-        val nextCursorAssist = if (movieList.isNotEmpty()) {
+        val nextCursorAssist = if (movieList.size == pageable.pageSize) {
             movieList.last().id
         } else null
 
