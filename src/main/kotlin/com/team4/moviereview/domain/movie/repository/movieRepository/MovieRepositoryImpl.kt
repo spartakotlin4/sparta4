@@ -6,7 +6,10 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.model.QCategory
 import com.team4.moviereview.domain.member.model.QMember
-import com.team4.moviereview.domain.movie.dto.*
+import com.team4.moviereview.domain.movie.dto.CursorRequest
+import com.team4.moviereview.domain.movie.dto.FilterRequest
+import com.team4.moviereview.domain.movie.dto.MovieDetailResponse
+import com.team4.moviereview.domain.movie.dto.MovieResponse
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.dto.ReviewResponse
@@ -122,8 +125,44 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
     }
 
-    override fun searchMovies(keyword: String, pageable: Pageable): Page<MovieResponse> {
-        TODO("Not yet implemented")
+    override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val builder = BooleanBuilder() //for 검색조건 동적 추가
+
+        if (keyword.isNotBlank()) {
+            builder.and(
+                movie.title.containsIgnoreCase(keyword)
+                    .or(movie.actor.containsIgnoreCase(keyword))
+                    .or(movie.director.containsIgnoreCase(keyword))
+            )
+        }
+
+        val query = queryFactory.select(
+            Projections.constructor(
+                MovieResponse::class.java,
+                movie.id,
+                movie.title,
+                movie.director,
+                movie.actor,
+                movie.releaseDate,
+                review.rating.avg()
+            )
+        )
+            .from(movie)
+            .leftJoin(review).on(movie.eq(review.movie))
+            .where(builder)
+            .groupBy(
+                movie.id,
+                movie.title,
+                movie.director,
+                movie.actor,
+                movie.releaseDate,
+            )
+            .orderBy(movie.releaseDate.desc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+        return query
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse> {
