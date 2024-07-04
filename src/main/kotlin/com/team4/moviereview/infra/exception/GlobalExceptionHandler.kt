@@ -22,4 +22,11 @@ class GlobalExceptionHandler {
             .status(HttpStatus.UNAUTHORIZED)
             .body(ErrorResponse(e.message!!))
     }
+
+    @ExceptionHandler(ModelNotFoundException::class)
+    fun modelNotFoundExceptionHandler(e : ModelNotFoundException) : ResponseEntity<ErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(ErrorResponse(e.message!!))
+    }
 }
