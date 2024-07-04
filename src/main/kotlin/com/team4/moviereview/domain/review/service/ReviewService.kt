@@ -10,13 +10,9 @@ import com.team4.moviereview.domain.review.model.Review
 import com.team4.moviereview.domain.review.repository.ReviewRepository
 import com.team4.moviereview.infra.exception.ModelNotFoundException
 import com.team4.moviereview.infra.exception.UnAuthorizeException
-import com.team4.moviereview.infra.security.jwt.JwtPlugin
-import jakarta.persistence.Id
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.lang.RuntimeException
-import java.time.LocalDateTime
 
 @Service
 class ReviewService(

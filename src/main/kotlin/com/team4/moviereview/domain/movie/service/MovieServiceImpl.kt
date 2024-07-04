@@ -2,13 +2,9 @@ package com.team4.moviereview.domain.movie.service
 
 import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.movie.dto.*
-import com.team4.moviereview.domain.movie.model.Movie
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.repository.ReviewRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.findByIdOrNull
-import java.awt.Cursor
 
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
@@ -29,6 +25,7 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse> {
+
         return movieRepository.searchMovies(request, pageable)
     }
 
@@ -50,7 +47,7 @@ class MovieServiceImpl(
         val nextCursor = if (movieList.size == pageable.pageSize) {
             when (cursorType) {
                 "releaseDate" -> movieList.last().releaseDate.toString()
-                "rating" -> getMovieAverageRate(movieList.last().id).toString()
+                "rating" -> movieList.last().rating
                 else -> throw RuntimeException("올바른 정렬 타입을 선택해 주세요")
             }
         } else null
