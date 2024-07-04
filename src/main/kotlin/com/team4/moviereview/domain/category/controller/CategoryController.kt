@@ -6,6 +6,7 @@ import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.service.CategoryService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -13,35 +14,25 @@ import org.springframework.web.bind.annotation.*
 class CategoryController(
     private val categoryService: CategoryService
 ) {
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()
     fun addCategory(@RequestBody request: CategoryCreateRequest): ResponseEntity<CategoryResponse> {
-        return try {
-            ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(request))
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.CONFLICT).build()
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(request))
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{category-id}")
     fun updateCategoryName(
         @PathVariable(name = "category-id") categoryId: Long,
         @RequestBody request: CategoryUpdateRequest
     ): ResponseEntity<CategoryResponse> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryName(categoryId, request))
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.CONFLICT).build()
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(categoryService.updateCategoryName(categoryId, request))
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{category-id}")
     fun deleteCategory(@PathVariable(name = "category-id") categoryId: Long): ResponseEntity<Unit> {
-        return try {
-            ResponseEntity.status(HttpStatus.NO_CONTENT).body(categoryService.deleteCategory(categoryId))
-        } catch (ex: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.CONFLICT).build()
-        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(categoryService.deleteCategory(categoryId))
     }
 
 }
