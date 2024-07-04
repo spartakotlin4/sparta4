@@ -29,6 +29,7 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse> {
+
         return movieRepository.searchMovies(request, pageable)
     }
 
@@ -50,7 +51,7 @@ class MovieServiceImpl(
         val nextCursor = if (movieList.size == pageable.pageSize) {
             when (cursorType) {
                 "releaseDate" -> movieList.last().releaseDate.toString()
-                "rating" -> getMovieAverageRate(movieList.last().id).toString()
+                "rating" -> movieList.last().rating
                 else -> throw RuntimeException("올바른 정렬 타입을 선택해 주세요")
             }
         } else null
