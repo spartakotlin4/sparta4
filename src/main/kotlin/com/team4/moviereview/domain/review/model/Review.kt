@@ -1,10 +1,9 @@
 package com.team4.moviereview.domain.review.model
 
+import com.team4.moviereview.domain.member.model.Member
 import com.team4.moviereview.domain.movie.model.Movie
 import com.team4.moviereview.domain.review.dto.ReviewRequest
 import jakarta.persistence.*
-import org.springframework.cglib.core.Local
-import java.lang.reflect.Member
 import java.time.LocalDateTime
 
 @Entity
@@ -29,7 +28,7 @@ class Review(
     var movie: Movie,
 
 
-) {
+    ) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
