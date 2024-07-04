@@ -31,15 +31,12 @@ class Movie(
 
     fun getTitle() = this.title
 
-    fun getDescription() = this.description
-
     fun getReleaseDate() = this.releaseDate
 
-    fun update(actor: String, direct: String, title: String, description: String, releaseDate: Date) {
+    fun update(actor: String, direct: String, title: String, description: String, releaseDate: LocalDate) {
         this.actor = actor
         this.director = direct
         this.title = title
-        this.description = description
         this.releaseDate = releaseDate
     }
 

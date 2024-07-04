@@ -8,7 +8,6 @@ data class MovieDetailResponse(
     val id: Long,
     val title: String,
     val director: String,
-    val description: String,
     val actors: String,
     val category: List<CategoryResponse>?,
     val releaseDate: LocalDate,

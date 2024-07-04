@@ -65,7 +65,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.id,
                 movie.title,
                 movie.director,
-                movie.description,
                 movie.actor,
                 null,
                 movie.releaseDate,
@@ -82,7 +81,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.id,
                 movie.title,
                 movie.director,
-                movie.description,
                 movie.actor,
             )
             .fetchOne()!!
@@ -119,7 +117,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             id = movieDetail.id,
             title = movieDetail.title,
             director = movieDetail.director,
-            description = movieDetail.description,
             actors = movieDetail.actors,
             category = category,
             releaseDate = movieDetail.releaseDate,
