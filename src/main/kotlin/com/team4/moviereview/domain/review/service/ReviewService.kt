@@ -8,6 +8,8 @@ import com.team4.moviereview.domain.review.dto.ReviewRequest
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.model.Review
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.infra.exception.ModelNotFoundException
+import com.team4.moviereview.infra.exception.UnAuthorizeException
 import com.team4.moviereview.infra.security.jwt.JwtPlugin
 import jakarta.persistence.Id
 import org.springframework.data.repository.findByIdOrNull
@@ -34,23 +36,26 @@ class ReviewService(
         val review = Review.of(
             comment=reviewRequest.comment,
             rating=reviewRequest.rating,
-            created_at= LocalDateTime.now(),
             member= member,
             movie=movie,
         )
+
+        reviewRepository.save(review)
 
         return ReviewResponse.from(review)
     }
 
     @Transactional
     fun updateReview( movieId: Long, reviewId:Long, reviewRequest: ReviewRequest, userId: Long):ReviewResponse{
-        if( movieRepository.existsById(movieId) ==false){ throw RuntimeException("movie")}
+        if(!movieRepository.existsById(movieId)){
+            throw RuntimeException("movie")
+        }
 
         val review = reviewRepository.findByIdOrNull(reviewId) ?:throw RuntimeException("review")
         val currentMember = memberRepository.findByIdOrNull(userId)?:throw RuntimeException("user")
 
         if(review.member.id != currentMember.id){
-            throw RuntimeException("user")
+            throw UnAuthorizeException("내 리뷰가 아님, 수정 불가")
         }
 
 
@@ -60,13 +65,15 @@ class ReviewService(
 
     @Transactional
     fun deleteReview( movieId:Long, reviewId: Long, userId: Long){
-        if( movieRepository.existsById(movieId) ==false){ throw RuntimeException("movie")}
+        if(!movieRepository.existsById(movieId)){
+            throw ModelNotFoundException("movie", movieId)
+        }
 
-        val review = reviewRepository.findByIdOrNull(reviewId) ?:throw RuntimeException("review")
-        val currentMember = memberRepository.findByIdOrNull(userId)?:throw RuntimeException("user")
+        val review = reviewRepository.findByIdOrNull(reviewId) ?:throw ModelNotFoundException("review", movieId)
+        val currentMember = memberRepository.findByIdOrNull(userId)?:throw ModelNotFoundException("user",userId)
 
         if(review.member.id != currentMember.id){
-            throw RuntimeException("user")
+            throw UnAuthorizeException("내 리뷰가 아님, 삭제 불가")
         }
 
         reviewRepository.delete(review) //todo : soft delete 여부
