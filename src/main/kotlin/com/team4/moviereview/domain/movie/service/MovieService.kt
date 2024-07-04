@@ -1,7 +1,6 @@
 package com.team4.moviereview.domain.movie.service
 
 import com.team4.moviereview.domain.movie.dto.*
-import com.team4.moviereview.domain.movie.model.Movie
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 

@@ -2,13 +2,9 @@ package com.team4.moviereview.domain.movie.service
 
 import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.movie.dto.*
-import com.team4.moviereview.domain.movie.model.Movie
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.repository.ReviewRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.findByIdOrNull
-import java.awt.Cursor
 
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
