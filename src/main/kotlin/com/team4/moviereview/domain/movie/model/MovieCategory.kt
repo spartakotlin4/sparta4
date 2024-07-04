@@ -1,0 +1,22 @@
+package com.team4.moviereview.domain.movie.model
+
+import com.team4.moviereview.domain.category.model.Category
+import jakarta.persistence.*
+
+@Entity
+@Table(name = "movie_category")
+class MovieCategory(
+
+    @ManyToOne
+    @JoinColumn(name = "movie_id")
+    private val movie: Movie,
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private val category: Category,
+
+    ) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null
+}

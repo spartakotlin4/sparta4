@@ -1,0 +1,66 @@
+package com.team4.moviereview.domain.movie.service
+
+import com.team4.moviereview.domain.category.model.Category
+import com.team4.moviereview.domain.movie.dto.*
+import com.team4.moviereview.domain.movie.model.Movie
+import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
+import com.team4.moviereview.domain.review.repository.ReviewRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.repository.findByIdOrNull
+import java.awt.Cursor
+
+class MovieServiceImpl(
+    private val movieRepository: MovieRepository,
+    private val reviewRepository: ReviewRepository,
+) : MovieService {
+
+    override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
+        val movieList = movieRepository.getMoviesByCursor(pageable, cursor)
+        val pagingMovieList = createCursorPageResponse(movieList, cursor.orderBy)
+
+        return pagingMovieList
+    }
+
+    override fun getMovieDetails(movieId: Long, pageable: Pageable): MovieDetailResponse {
+        val movie = movieRepository.findByIdOrNull(movieId) ?: throw RuntimeException("Movie not found")
+        // queryDsl 을 사용해 리뷰와 무비 한번에 가져올 수 있음 projections 와 서브쿼리 활용
+        val reviews = reviewRepository.findAllByMovieId(movieId).toResponse()
+        val rate = getMovieAverageRate(movieId)
+        val categories = getMovieCategories(movieId)
+        //return movieRepository.getMovieDetails(movieId, pageable)
+
+        return MovieDetailResponse.from(movie, categories, rate, reviews)
+    }
+
+    override fun searchMovies(request: SearchRequest, pageable: Pageable): List<MovieResponse> {
+        return movieRepository.searchMovies(request, pageable)
+    }
+
+    override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
+        return movieRepository.filterMovies(request, pageable)
+    }
+
+    private fun getMovieAverageRate(movieId: Long): Double {
+    }
+
+    private fun getMovieCategories(movieId: Long): List<Category> {
+    }
+
+    private fun createCursorPageResponse(movieList: List<MovieResponse>, cursorType: String): CursorPageResponse {
+        val nextCursor = if (movieList.isNotEmpty()) {
+            when (cursorType) {
+                "releaseDate" -> movieList.last().releaseDate.toString()
+                "rating" -> getMovieAverageRate(movieList.last().id).toString()
+                else -> throw RuntimeException("올바른 정렬 타입을 선택해 주세요")
+            }
+        } else null
+
+        val nextCursorAssist = if (movieList.isNotEmpty()) {
+            movieList.last().id
+        } else null
+
+        return CursorPageResponse(movieList.toList(), nextCursor, nextCursorAssist)
+    }
+
+}
