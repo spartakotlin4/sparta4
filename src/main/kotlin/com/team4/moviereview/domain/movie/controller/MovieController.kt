@@ -1,16 +1,15 @@
 package com.team4.moviereview.domain.movie.controller
 
-import com.team4.moviereview.domain.movie.dto.FilterRequest
-import com.team4.moviereview.domain.movie.dto.MovieDetailResponse
-import com.team4.moviereview.domain.movie.dto.MovieResponse
-import com.team4.moviereview.domain.movie.dto.SearchRequest
+import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.service.MovieService
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -20,10 +19,13 @@ class MovieController(
 ) {
 
     @GetMapping("/list")
-    fun getMovieList(): ResponseEntity<List<MovieResponse>> {
+    fun getMovieList(
+        @RequestParam pageable: Pageable,
+        @ModelAttribute cursor: CursorRequest
+    ): ResponseEntity<CursorPageResponse> {
         return try {
             ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.getMovieList())
+                .body(movieService.getMovieList(pageable, cursor))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_GATEWAY).build()
         }
@@ -31,11 +33,12 @@ class MovieController(
 
     @GetMapping("/{movie-id}")
     fun getMovieDetails(
-        @PathVariable ("movie-id") movieId: Long
+        @PathVariable ("movie-id") movieId: Long,
+        @RequestParam pageable: Pageable,
     ): ResponseEntity<MovieDetailResponse> {
         return try {
             ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.getMovieDetails(movieId))
+                .body(movieService.getMovieDetails(movieId, pageable))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
@@ -43,11 +46,12 @@ class MovieController(
 
     @GetMapping("/search")
     fun searchMovies(
-        @ModelAttribute request: SearchRequest
-    ): ResponseEntity<MovieResponse> {
+        @ModelAttribute request: SearchRequest,
+        @RequestParam pageable: Pageable,
+    ): ResponseEntity<List<MovieResponse>> {
         return try {
             ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.searchMovies(request))
+                .body(movieService.searchMovies(request, pageable))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
@@ -56,10 +60,11 @@ class MovieController(
     @GetMapping("/filter")
     fun filterMovies(
         @ModelAttribute request: FilterRequest,
-    ): ResponseEntity<MovieResponse> {
+        @RequestParam pageable: Pageable,
+    ): ResponseEntity<List<MovieResponse>> {
         return try {
             ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.filterMovies(request))
+                .body(movieService.filterMovies(request, pageable))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
         }
