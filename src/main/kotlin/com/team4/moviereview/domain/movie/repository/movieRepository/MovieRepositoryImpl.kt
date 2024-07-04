@@ -126,7 +126,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
-        val builder = BooleanBuilder() //for 검색조건 동적 추가
+        val builder = BooleanBuilder()
 
         if (keyword.isNotBlank()) {
             builder.and(
@@ -143,6 +143,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.title,
                 movie.director,
                 movie.actor,
+                movieCategory.category,
                 movie.releaseDate,
                 review.rating.avg()
             )
@@ -155,6 +156,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.title,
                 movie.director,
                 movie.actor,
+                movieCategory.category,
                 movie.releaseDate,
             )
             .orderBy(movie.releaseDate.desc())
