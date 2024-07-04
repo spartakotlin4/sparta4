@@ -5,7 +5,9 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.repository.ReviewRepository
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
 
+@Service
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
     private val reviewRepository: ReviewRepository,
