@@ -1,10 +1,6 @@
 package com.team4.moviereview.domain.movie.repository.movieRepository
 
-import com.querydsl.core.BooleanBuilder
-import com.querydsl.core.types.Projections
-import com.querydsl.jpa.impl.JPAQuery
 import com.team4.moviereview.domain.category.model.QCategory
-import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.model.QReview
