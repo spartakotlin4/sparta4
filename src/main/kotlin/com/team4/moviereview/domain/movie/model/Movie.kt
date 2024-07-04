@@ -9,7 +9,7 @@ class Movie(
 
     private var actor: String,
 
-    private var direct: String,
+    private var director: String,
 
     private var title: String,
 
@@ -17,14 +17,14 @@ class Movie(
 
     private var releaseDate: Date,
 
-) {
+    ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
     fun getActor() = this.actor
 
-    fun getDirect() = this.direct
+    fun getDirect() = this.director
 
     fun getTitle() = this.title
 
@@ -34,7 +34,7 @@ class Movie(
 
     fun update(actor: String, direct: String, title: String, description: String, releaseDate: Date) {
         this.actor = actor
-        this.direct = direct
+        this.director = direct
         this.title = title
         this.description = description
         this.releaseDate = releaseDate
