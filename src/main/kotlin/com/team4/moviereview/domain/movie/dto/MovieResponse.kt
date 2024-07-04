@@ -5,6 +5,7 @@ import com.team4.moviereview.domain.movie.model.Movie
 import java.util.Date
 
 data class MovieResponse(
+    val id: Long,
     val title: String,
     val director: String,
     val actors: String,
@@ -15,6 +16,7 @@ data class MovieResponse(
     companion object {
         fun from(movie: Movie, category: List<Category>, rating: Double) : MovieResponse {
             return MovieResponse(
+                id = movie.id!!,
                 title = movie.getTitle(),
                 director = movie.getDirect(),
                 actors = movie.getActor(),
