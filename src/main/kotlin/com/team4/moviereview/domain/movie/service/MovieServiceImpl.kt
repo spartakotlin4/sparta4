@@ -3,7 +3,6 @@ package com.team4.moviereview.domain.movie.service
 import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.category.repository.CategoryRepository
 import com.team4.moviereview.domain.movie.dto.*
-import com.team4.moviereview.domain.movie.model.Movie
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import org.springframework.data.domain.Pageable
