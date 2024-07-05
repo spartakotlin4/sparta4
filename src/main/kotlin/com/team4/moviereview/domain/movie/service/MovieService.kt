@@ -2,7 +2,6 @@ package com.team4.moviereview.domain.movie.service
 
 import com.team4.moviereview.domain.movie.dto.*
 import org.springframework.data.domain.Pageable
-import org.springframework.stereotype.Service
 
 interface MovieService {
     fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse
