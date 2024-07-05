@@ -30,6 +30,7 @@ class SecurityConfig(
                     "/register",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
+                    "/movies/**"
 
                 ).permitAll()
                     .anyRequest().authenticated()
