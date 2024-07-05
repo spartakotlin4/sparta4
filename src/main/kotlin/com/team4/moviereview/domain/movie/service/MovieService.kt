@@ -11,4 +11,6 @@ interface MovieService {
     fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse>
 
     fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
+
+    fun getMoviesByCategory(categoryName: String): List<MovieResponse>
 }

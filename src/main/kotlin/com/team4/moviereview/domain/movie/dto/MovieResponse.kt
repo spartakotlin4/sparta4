@@ -8,7 +8,7 @@ data class MovieResponse(
     val title: String,
     val director: String,
     val actors: String,
-    val category: List<Category>,
+    val category: List<String>,
     val releaseDate: LocalDate,
     val rating: Double,
 )
