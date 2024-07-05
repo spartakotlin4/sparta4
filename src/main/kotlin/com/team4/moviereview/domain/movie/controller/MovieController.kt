@@ -34,7 +34,7 @@ class MovieController(
     @GetMapping("/search")
     fun searchMovies(
         @RequestParam(value = "keyword", required = true) keyword: String,
-        @RequestParam pageable: Pageable,
+        pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity.status(HttpStatus.OK)
             .body(movieService.searchMovies(keyword, pageable))
@@ -43,7 +43,7 @@ class MovieController(
     @GetMapping("/filter")
     fun filterMovies(
         @ModelAttribute request: FilterRequest,
-        @RequestParam pageable: Pageable,
+        pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity.status(HttpStatus.OK)
             .body(movieService.filterMovies(request, pageable))
