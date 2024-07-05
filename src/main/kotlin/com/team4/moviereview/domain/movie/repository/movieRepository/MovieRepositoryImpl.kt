@@ -42,7 +42,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
             .from(movie)
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
-            .innerJoin(review).on(movie.eq(review.movie))
+            .leftJoin(review).on(movie.eq(review.movie))
             .groupBy(
                 movie.id,
                 movie.title,
@@ -61,20 +61,18 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
 
         val movieDetail = queryFactory.select(
             Projections.constructor(
-                MovieDetailResponse::class.java,
+                MovieDetailData::class.java,
                 movie.id,
                 movie.title,
                 movie.director,
                 movie.actor,
-                null,
                 movie.releaseDate,
                 review.rating.avg(),
-                null
             )
         )
             .from(movie)
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
-            .innerJoin(review).on(movie.eq(review.movie))
+            .leftJoin(review).on(movie.eq(review.movie))
             .innerJoin(category).on(category.eq(movieCategory.category))
             .where(movie.id.eq(movieId))
             .groupBy(
@@ -88,6 +86,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         val reviews = queryFactory.select(
             Projections.constructor(
                 ReviewResponse::class.java,
+                review.id,
                 review.comment,
                 review.rating,
                 review.member.nickname,
@@ -95,6 +94,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             )
         )
             .from(review)
+            .innerJoin(member).on(review.member.eq(member))
             .where(review.movie.id.eq(movieId))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
