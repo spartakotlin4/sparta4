@@ -1,8 +1,11 @@
 package com.team4.moviereview.domain.movie.service
 
+import com.team4.moviereview.domain.category.model.Category
+import com.team4.moviereview.domain.category.repository.CategoryRepository
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.domain.search.service.SearchService
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -10,6 +13,8 @@ import org.springframework.stereotype.Service
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
     private val reviewRepository: ReviewRepository,
+    private val searchService: SearchService,
+    private val categoryRepository: CategoryRepository,
 ) : MovieService {
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
@@ -26,17 +31,33 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
-        TODO()
+        val movies = movieRepository.searchMovies(keyword, pageable)
+
+        searchService.saveSearchedKeyword(keyword)
+
+        return movies
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
-        TODO()
+        val movies = movieRepository.filterMovies(request, pageable)
+        return movies
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
         val movies = movieRepository.getMoviesByCategory(categoryName)
-
+        val category : Category? = categoryRepository.findByName(categoryName)
+        if(category != null ) {
+            searchService.saveSearchedCategory(category)
+        }
         return movies
+    }
+
+    private fun getMovieAverageRate(movieId: Long): Double {
+        TODO()
+    }
+
+    private fun getMovieCategories(movieId: Long): List<Category> {
+        TODO()
     }
 
     private fun createCursorPageResponse(
@@ -60,3 +81,4 @@ class MovieServiceImpl(
     }
 
 }
+
