@@ -15,28 +15,20 @@ class MovieController(
 
     @GetMapping("/list")
     fun getMovieList(
-        @RequestParam pageable: Pageable,
+        pageable: Pageable,
         @ModelAttribute cursor: CursorRequest
     ): ResponseEntity<CursorPageResponse> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.getMovieList(pageable, cursor))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_GATEWAY).build()
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.getMovieList(pageable, cursor))
     }
 
     @GetMapping("/{movie-id}")
     fun getMovieDetails(
-        @PathVariable ("movie-id") movieId: Long,
-        @RequestParam pageable: Pageable,
+        @PathVariable("movie-id") movieId: Long,
+        pageable: Pageable,
     ): ResponseEntity<MovieDetailResponse> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.getMovieDetails(movieId, pageable))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.getMovieDetails(movieId, pageable))
     }
 
     @GetMapping("/search")
@@ -44,12 +36,8 @@ class MovieController(
         @RequestParam(value = "keyword", required = true) keyword: String,
         @RequestParam pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.searchMovies(keyword, pageable))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.searchMovies(keyword, pageable))
     }
 
     @GetMapping("/filter")
@@ -57,11 +45,16 @@ class MovieController(
         @ModelAttribute request: FilterRequest,
         @RequestParam pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
-        return try {
-            ResponseEntity.status(HttpStatus.OK)
-                .body(movieService.filterMovies(request, pageable))
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        }
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.filterMovies(request, pageable))
+    }
+
+    @GetMapping("/category")
+    fun getMoviesByCategory(
+        @RequestParam(value = "categoryName") categoryName: String
+    ): ResponseEntity<List<MovieResponse>> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(movieService.getMoviesByCategory(categoryName))
     }
 }
