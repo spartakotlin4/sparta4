@@ -12,7 +12,6 @@ import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.model.QReview
 import com.team4.moviereview.infra.querydsl.QueryDslSupport
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 

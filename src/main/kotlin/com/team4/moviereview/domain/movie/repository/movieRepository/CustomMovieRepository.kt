@@ -1,7 +1,6 @@
 package com.team4.moviereview.domain.movie.repository.movieRepository
 
 import com.team4.moviereview.domain.movie.dto.*
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface CustomMovieRepository {
