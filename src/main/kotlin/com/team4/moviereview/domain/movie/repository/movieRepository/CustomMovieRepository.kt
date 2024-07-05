@@ -12,7 +12,7 @@ interface CustomMovieRepository {
 
     fun searchMovies(keyword: String, pageable: Pageable): Page<MovieResponse>
 
-    fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse>
+    fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
 
     fun getMoviesByCategory(categoryName: String): List<MovieResponse>
 }

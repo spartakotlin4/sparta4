@@ -142,17 +142,16 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
             .from(movie)
             .leftJoin(review).on(movie.eq(review.movie))
+            .where(filterSearch(request))
             .groupBy(
                 movie.id,
-                movie.title,
-                movie.actor,
-                movie.director,
-                movie.releaseDate,
-                review.rating.avg()
             )
-            .having(filterSearch(request))
             .orderBy(movie.releaseDate.desc())
             .fetch()
+            .filter {
+                it.rating >= request.overRated
+            }
+
 
         val movieByCategories = queryFactory.select(
             Projections.constructor(
@@ -279,15 +278,11 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         return builder
     }
 
-    private fun filterSearch(request: FilterRequest) :BooleanBuilder{
+    private fun filterSearch(request: FilterRequest): BooleanBuilder {
         val builder = BooleanBuilder()
 
-        request.overRated?.let {
-            builder.and(review.rating.goe(it))
-        }
-
         request.releasedDate?.let {
-            if(request.after)
+            if (request.after)
                 builder.and(movie.releaseDate.after(it))
             else
                 builder.and(movie.releaseDate.before(it))
