@@ -134,13 +134,13 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             )
         }
 
-        val movie = queryFactory.select(
+        val movies = queryFactory.select(
             Projections.constructor(
                 MovieData::class.java,
                 movie.id,
                 movie.title,
-                movie.director,
                 movie.actor,
+                movie.director,
                 movie.releaseDate,
                 review.rating.avg()
             )
@@ -151,8 +151,8 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .groupBy(
                 movie.id,
                 movie.title,
-                movie.director,
                 movie.actor,
+                movie.director,
                 movie.releaseDate,
             )
             .orderBy(movie.releaseDate.desc())
@@ -161,16 +161,38 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .fetch()
 
 
-        val movieResponses = movie.map { movieData ->
-            val categories = queryFactory.selectFrom(category)
-                .innerJoin(movieCategory).on(category.eq(movieCategory.category))
-                .where(movieCategory.movie.id.eq(movieData.id))
-                .fetch()
+        val movieByCategories = queryFactory.select(
+            Projections.constructor(
+                IdCategory::class.java,
+                movie.id,
+                category.name
+            )
+        )
+            .from(movie)
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .fetch()
 
-            MovieResponse.from(movieData, categories)
+        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
+
+        movieByCategories.forEach {
+            if (!categoryMap.containsKey(it.movieId)) {
+                categoryMap[it.movieId] = mutableListOf()
+            }
+            categoryMap[it.movieId]?.add(it.categoryName)
         }
 
-        return movieResponses
+
+        return movies.map {
+            MovieResponse(
+                it.movieId,
+                it.title,
+                it.directors,
+                it.actors,
+                categoryMap[it.movieId]!!,
+                it.releaseDate,
+                it.rating,
+            )
+        }
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse> {

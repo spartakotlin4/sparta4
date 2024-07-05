@@ -30,13 +30,14 @@ class SecurityConfig(
                     "/register",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
-                    "/movies/**"
+                    "/movies/**",
+                    "/search/**"
 
                 ).permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-            .exceptionHandling{
+            .exceptionHandling {
                 it.authenticationEntryPoint(authenticationEntrypoint)
             }
             .build()
