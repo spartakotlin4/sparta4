@@ -7,11 +7,11 @@ import jakarta.persistence.*
 @Table(name = "movie_category")
 class MovieCategory(
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id")
     private val movie: Movie,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private val category: Category,
 
