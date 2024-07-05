@@ -1,6 +1,5 @@
 package com.team4.moviereview.domain.movie.service
 
-import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.repository.ReviewRepository
@@ -38,14 +37,6 @@ class MovieServiceImpl(
         val movies = movieRepository.getMoviesByCategory(categoryName)
 
         return movies
-    }
-
-    private fun getMovieAverageRate(movieId: Long): Double {
-        TODO()
-    }
-
-    private fun getMovieCategories(movieId: Long): List<Category> {
-        TODO()
     }
 
     private fun createCursorPageResponse(
