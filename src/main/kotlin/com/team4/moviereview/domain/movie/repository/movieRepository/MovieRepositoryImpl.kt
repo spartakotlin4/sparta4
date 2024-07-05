@@ -23,7 +23,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
     private val review = QReview.review
     private val member = QMember.member
 
-    override fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): List<MovieResponse> {
+    override fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): Pair<List<MovieData>, List<IdCategory>> {
         val movies = queryFactory.select(
             Projections.constructor(
                 MovieData::class.java,
@@ -51,19 +51,8 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .fetch()
 
         val movieByCategories = getMovieByCategories()
-        val categoryMap = createCategoryMap(movieByCategories)
 
-        return movies.map {
-            MovieResponse(
-                it.movieId,
-                it.title,
-                it.directors,
-                it.actors,
-                categoryMap[it.movieId]!!,
-                it.releaseDate,
-                it.rating,
-            )
-        }
+        return Pair(movies, movieByCategories)
     }
 
     override fun getMoviesCategories(moviesId: List<Long>): List<IdCategory> {
@@ -154,7 +143,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
     }
 
-    override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
+    override fun searchMovies(keyword: String, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>> {
         val builder = BooleanBuilder()
 
         if (keyword.isNotBlank()) {
@@ -192,22 +181,11 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .fetch()
 
         val movieByCategories = getMovieByCategories()
-        val categoryMap = createCategoryMap(movieByCategories)
 
-        return movies.map {
-            MovieResponse(
-                it.movieId,
-                it.title,
-                it.directors,
-                it.actors,
-                categoryMap[it.movieId]!!,
-                it.releaseDate,
-                it.rating,
-            )
-        }
+        return Pair(movies, movieByCategories)
     }
 
-    override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
+    override fun filterMovies(request: FilterRequest, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>> {
 
         val movies = queryFactory.select(
             Projections.constructor(
@@ -233,22 +211,11 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             }
 
         val movieByCategories = getMovieByCategories()
-        val categoryMap = createCategoryMap(movieByCategories)
 
-        return movies.map {
-            MovieResponse(
-                it.movieId,
-                it.title,
-                it.directors,
-                it.actors,
-                categoryMap[it.movieId]!!,
-                it.releaseDate,
-                it.rating,
-            )
-        }
+        return Pair(movies, movieByCategories)
     }
 
-    override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
+    override fun getMoviesByCategory(categoryName: String): Pair<List<MovieData>, List<IdCategory>> {
 
         // TODO : 추후에 동적으로 정렬기준이 생길수도
         // TODO : 추후에 페이지네이션으로 바꿀수도
@@ -275,19 +242,8 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .fetch()
 
         val movieByCategories = getMovieByCategories()
-        val categoryMap = createCategoryMap(movieByCategories)
 
-        return movies.map {
-            MovieResponse(
-                it.movieId,
-                it.title,
-                it.directors,
-                it.actors,
-                categoryMap[it.movieId]!!,
-                it.releaseDate,
-                it.rating,
-            )
-        }
+        return Pair(movies, movieByCategories)
     }
 
     private fun <T> JPAQuery<T>.applyOrderBy(orderBy: String): JPAQuery<T> {
@@ -349,17 +305,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .from(movie)
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
             .fetch()
-    }
-
-    private fun createCategoryMap(movieByCategories: List<IdCategory>): MutableMap<Long, MutableList<String>> {
-        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
-        movieByCategories.forEach {
-            if (!categoryMap.containsKey(it.movieId)) {
-                categoryMap[it.movieId] = mutableListOf()
-            }
-            categoryMap[it.movieId]?.add(it.categoryName)
-        }
-        return categoryMap
     }
 
 }
