@@ -31,7 +31,7 @@ class SecurityConfig(
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/movies/**",
-                    "/search/**"
+                    "/popular/**"
 
                 ).permitAll()
                     .anyRequest().authenticated()
