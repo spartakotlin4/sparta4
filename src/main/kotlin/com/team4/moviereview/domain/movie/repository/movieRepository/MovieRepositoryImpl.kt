@@ -58,15 +58,13 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
 
         val movieDetail = queryFactory.select(
             Projections.constructor(
-                MovieDetailResponse::class.java,
+                MovieDetailData::class.java,
                 movie.id,
                 movie.title,
                 movie.director,
                 movie.actor,
-                null,
                 movie.releaseDate,
                 review.rating.avg(),
-                null
             )
         )
             .from(movie)
@@ -85,6 +83,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         val reviews = queryFactory.select(
             Projections.constructor(
                 ReviewResponse::class.java,
+                review.id,
                 review.comment,
                 review.rating,
                 review.member.nickname,

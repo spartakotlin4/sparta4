@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @Entity
-@Table(name = "saerch_word")
+@Table(name = "search_word")
 class SearchWord(
 
     @Column(name = "keyword", nullable = false)
@@ -16,6 +16,6 @@ class SearchWord(
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "search_word_id")
+    @Column(name = "keyword_id")
     val id: Long? = null
 }
