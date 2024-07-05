@@ -1,6 +1,5 @@
 package com.team4.moviereview.domain.movie.dto
 
-import com.team4.moviereview.domain.category.model.Category
 import java.time.LocalDate
 
 data class MovieResponse(
@@ -12,3 +11,5 @@ data class MovieResponse(
     val releaseDate: LocalDate,
     val rating: Double,
 )
+
+

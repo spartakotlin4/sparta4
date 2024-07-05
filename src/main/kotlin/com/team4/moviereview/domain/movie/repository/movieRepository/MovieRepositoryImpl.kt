@@ -123,8 +123,76 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
     }
 
-    override fun searchMovies(keyword: String, pageable: Pageable): Page<MovieResponse> {
-        TODO("Not yet implemented")
+    override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val builder = BooleanBuilder()
+
+        if (keyword.isNotBlank()) {
+            builder.and(
+                movie.title.containsIgnoreCase(keyword)
+                    .or(movie.actor.containsIgnoreCase(keyword))
+                    .or(movie.director.containsIgnoreCase(keyword))
+            )
+        }
+
+        val movies = queryFactory.select(
+            Projections.constructor(
+                MovieData::class.java,
+                movie.id,
+                movie.title,
+                movie.actor,
+                movie.director,
+                movie.releaseDate,
+                review.rating.avg()
+            )
+        )
+            .from(movie)
+            .leftJoin(review).on(movie.eq(review.movie))
+            .where(builder)
+            .groupBy(
+                movie.id,
+                movie.title,
+                movie.actor,
+                movie.director,
+                movie.releaseDate,
+            )
+            .orderBy(movie.releaseDate.desc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+
+        val movieByCategories = queryFactory.select(
+            Projections.constructor(
+                IdCategory::class.java,
+                movie.id,
+                category.name
+            )
+        )
+            .from(movie)
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .fetch()
+
+        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
+
+        movieByCategories.forEach {
+            if (!categoryMap.containsKey(it.movieId)) {
+                categoryMap[it.movieId] = mutableListOf()
+            }
+            categoryMap[it.movieId]?.add(it.categoryName)
+        }
+
+
+        return movies.map {
+            MovieResponse(
+                it.movieId,
+                it.title,
+                it.directors,
+                it.actors,
+                categoryMap[it.movieId]!!,
+                it.releaseDate,
+                it.rating,
+            )
+        }
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
