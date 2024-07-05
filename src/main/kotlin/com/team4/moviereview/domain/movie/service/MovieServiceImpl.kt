@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service
 @Service
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
-    private val reviewRepository: ReviewRepository,
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
 ) : MovieService {
