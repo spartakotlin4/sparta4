@@ -31,7 +31,8 @@ class MovieServiceImpl(
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
-        TODO()
+        val movies = movieRepository.filterMovies(request, pageable)
+        return movies
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {

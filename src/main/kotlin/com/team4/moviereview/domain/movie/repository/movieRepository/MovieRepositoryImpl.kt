@@ -127,8 +127,62 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         TODO("Not yet implemented")
     }
 
-    override fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse> {
-        TODO("Not yet implemented")
+    override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
+
+        val movies = queryFactory.select(
+            Projections.constructor(
+                MovieData::class.java,
+                movie.id,
+                movie.title,
+                movie.actor,
+                movie.director,
+                movie.releaseDate,
+                review.rating.avg(),
+            )
+        )
+            .from(movie)
+            .leftJoin(review).on(movie.eq(review.movie))
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .groupBy(
+                movie.id,
+                review.id
+            )
+            .having(filterSearch(request))
+            .orderBy(movie.releaseDate.desc())
+            .fetch()
+
+        val movieByCategories = queryFactory.select(
+            Projections.constructor(
+                IdCategory::class.java,
+                movie.id,
+                category.name
+            )
+        )
+            .from(movie)
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .fetch()
+
+        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
+
+        movieByCategories.forEach {
+            if (!categoryMap.containsKey(it.movieId)) {
+                categoryMap[it.movieId] = mutableListOf()
+            }
+            categoryMap[it.movieId]?.add(it.categoryName)
+        }
+
+
+        return movies.map {
+            MovieResponse(
+                it.movieId,
+                it.title,
+                it.directors,
+                it.actors,
+                categoryMap[it.movieId]!!,
+                it.releaseDate,
+                it.rating,
+            )
+        }
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
@@ -218,6 +272,19 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             else -> {
                 throw IllegalArgumentException("올바른 정렬 타입을 선택해 주세요")
             }
+        }
+        return builder
+    }
+
+    private fun filterSearch(request: FilterRequest) :BooleanBuilder{
+        val builder = BooleanBuilder()
+
+        request.overRated?.let {
+            builder.and(review.rating.goe(it))
+        }
+
+        request.afterReleasedDate?.let {
+            builder.and(movie.releaseDate.after(it))
         }
         return builder
     }
