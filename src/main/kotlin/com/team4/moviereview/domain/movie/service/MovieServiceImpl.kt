@@ -52,14 +52,6 @@ class MovieServiceImpl(
         return movies
     }
 
-    private fun getMovieAverageRate(movieId: Long): Double {
-        TODO()
-    }
-
-    private fun getMovieCategories(movieId: Long): List<Category> {
-        TODO()
-    }
-
     private fun createCursorPageResponse(
         movieList: List<MovieResponse>,
         cursorType: String,
