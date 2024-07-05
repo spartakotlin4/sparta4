@@ -61,6 +61,7 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.7.2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 }
 
 noArg {

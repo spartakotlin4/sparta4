@@ -2,6 +2,7 @@ package com.team4.moviereview.domain.movie.controller
 
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.service.MovieService
+import com.team4.moviereview.infra.aop.StopWatch
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,6 +32,7 @@ class MovieController(
             .body(movieService.getMovieDetails(movieId, pageable))
     }
 
+    @StopWatch
     @GetMapping("/search")
     fun searchMovies(
         @RequestParam(value = "keyword", required = true) keyword: String,
@@ -40,6 +42,8 @@ class MovieController(
             .body(movieService.searchMovies(keyword, pageable))
     }
 
+
+    @StopWatch
     @GetMapping("/filter")
     fun filterMovies(
         @ModelAttribute request: FilterRequest,
@@ -49,6 +53,8 @@ class MovieController(
             .body(movieService.filterMovies(request, pageable))
     }
 
+
+    @StopWatch
     @GetMapping("/category")
     fun getMoviesByCategory(
         @RequestParam(value = "categoryName") categoryName: String
