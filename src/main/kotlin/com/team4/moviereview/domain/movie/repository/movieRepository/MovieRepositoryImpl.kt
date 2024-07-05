@@ -39,7 +39,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
             .from(movie)
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
-            .innerJoin(review).on(movie.eq(review.movie))
+            .leftJoin(review).on(movie.eq(review.movie))
             .groupBy(
                 movie.id,
                 movie.title,
@@ -71,7 +71,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
             .from(movie)
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
-            .innerJoin(review).on(movie.eq(review.movie))
+            .leftJoin(review).on(movie.eq(review.movie))
             .innerJoin(category).on(category.eq(movieCategory.category))
             .where(movie.id.eq(movieId))
             .groupBy(
@@ -92,6 +92,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             )
         )
             .from(review)
+            .innerJoin(member).on(review.member.eq(member))
             .where(review.movie.id.eq(movieId))
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
