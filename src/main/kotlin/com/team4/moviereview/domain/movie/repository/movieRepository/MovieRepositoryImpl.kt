@@ -6,10 +6,7 @@ import com.querydsl.jpa.impl.JPAQuery
 import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.model.QCategory
 import com.team4.moviereview.domain.member.model.QMember
-import com.team4.moviereview.domain.movie.dto.CursorRequest
-import com.team4.moviereview.domain.movie.dto.FilterRequest
-import com.team4.moviereview.domain.movie.dto.MovieDetailResponse
-import com.team4.moviereview.domain.movie.dto.MovieResponse
+import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.dto.ReviewResponse
@@ -136,14 +133,13 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             )
         }
 
-        val query = queryFactory.select(
+        val movie = queryFactory.select(
             Projections.constructor(
-                MovieResponse::class.java,
+                MovieData::class.java,
                 movie.id,
                 movie.title,
                 movie.director,
                 movie.actor,
-                movieCategory.category,
                 movie.releaseDate,
                 review.rating.avg()
             )
@@ -156,7 +152,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.title,
                 movie.director,
                 movie.actor,
-                movieCategory.category,
                 movie.releaseDate,
             )
             .orderBy(movie.releaseDate.desc())
@@ -164,7 +159,17 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        return query
+
+        val movieResponses = movie.map { movieData ->
+            val categories = queryFactory.selectFrom(category)
+                .innerJoin(movieCategory).on(category.eq(movieCategory.category))
+                .where(movieCategory.movie.id.eq(movieData.id))
+                .fetch()
+
+            MovieResponse.from(movieData, categories)
+        }
+
+        return movieResponses
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): Page<MovieResponse> {

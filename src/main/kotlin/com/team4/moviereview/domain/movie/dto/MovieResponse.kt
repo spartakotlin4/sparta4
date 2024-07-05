@@ -11,4 +11,21 @@ data class MovieResponse(
     val category: List<Category>,
     val releaseDate: LocalDate,
     val rating: Double,
-)
+) {
+
+    companion object {
+        fun from(movie: MovieData, categories: List<Category>): MovieResponse {
+            return MovieResponse(
+                id = movie.id,
+                title = movie.title,
+                director = movie.director,
+                actors = movie.actors,
+                category = categories,
+                releaseDate = movie.releaseDate,
+                rating = movie.rating,
+            )
+        }
+    }
+}
+
+
