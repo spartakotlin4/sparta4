@@ -142,10 +142,13 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         )
             .from(movie)
             .leftJoin(review).on(movie.eq(review.movie))
-            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
             .groupBy(
                 movie.id,
-                review.id
+                movie.title,
+                movie.actor,
+                movie.director,
+                movie.releaseDate,
+                review.rating.avg()
             )
             .having(filterSearch(request))
             .orderBy(movie.releaseDate.desc())
@@ -283,10 +286,14 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             builder.and(review.rating.goe(it))
         }
 
-        request.afterReleasedDate?.let {
-            builder.and(movie.releaseDate.after(it))
+        request.releasedDate?.let {
+            if(request.after)
+                builder.and(movie.releaseDate.after(it))
+            else
+                builder.and(movie.releaseDate.before(it))
         }
         return builder
     }
+
 
 }
