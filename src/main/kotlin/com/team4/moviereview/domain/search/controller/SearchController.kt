@@ -1,6 +1,5 @@
 package com.team4.moviereview.domain.search.controller
 
-import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchCategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.service.SearchService
