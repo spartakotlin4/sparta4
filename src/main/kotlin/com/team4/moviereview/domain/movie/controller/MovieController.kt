@@ -49,12 +49,12 @@ class MovieController(
             .body(movieService.filterMovies(request, pageable))
     }
 
-//    @GetMapping("/category")
-//    fun getMoviesByCategory(
-//        @RequestParam(value = "categoryName") categoryName: String
-//    ): ResponseEntity<List<MovieResponse>> {
-//        return ResponseEntity
-//            .status(HttpStatus.OK)
-//            .body(movieService.getMoviesByCategory(categoryName))
-//    }
+    @GetMapping("/category")
+    fun getMoviesByCategory(
+        @RequestParam(value = "categoryName") categoryName: String
+    ): ResponseEntity<List<MovieResponse>> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(movieService.getMoviesByCategory(categoryName))
+    }
 }

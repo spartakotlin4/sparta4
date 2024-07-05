@@ -34,6 +34,12 @@ class MovieServiceImpl(
         TODO()
     }
 
+    override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
+        val movies = movieRepository.getMoviesByCategory(categoryName)
+
+        return movies
+    }
+
     private fun getMovieAverageRate(movieId: Long): Double {
         TODO()
     }
