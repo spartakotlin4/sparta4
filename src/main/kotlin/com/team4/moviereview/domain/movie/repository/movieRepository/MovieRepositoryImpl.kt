@@ -49,6 +49,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             )
             .having(applyCursorPosition(cursor))
             .applyOrderBy(cursor.orderBy)
+            .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
         return query
@@ -132,57 +133,63 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
 
+        // TODO : 추후에 동적으로 정렬기준이 생길수도
+        // TODO : 추후에 페이지네이션으로 바꿀수도
 
-//        val query = queryFactory.select(
-////            Projections.constructor(
-////                MovieResponse::class.java,
-////                movie.id,
-////                movie.title,
-////                movie.director,
-////                movie.actor,
-////                movieCategory.category,
-////                movie.releaseDate,
-////                review.rating.avg()
-////            )
-//            movie, review.rating.avg(), movieCategory
-//        )
-//            .from(movie)
-//            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
-//            .innerJoin(review).on(movie.eq(review.movie))
-////            .innerJoin(movieCategory.category,category).fetchJoin()
-//            .groupBy(
-//                movie.id,
-//                movieCategory.id,
-////                category.id
-//            )
-//            .orderBy(movie.releaseDate.desc())
-////            .limit(3)
-//            .fetch()
 
-        val query = queryFactory.select(
-//            Projections.constructor(
-//                MovieResponse::class.java,
-//                movie.id,
-//                movie.title,
-//                movie.director,
-//                movie.actor,
-//                movieCategory.category,
-//                movie.releaseDate,
-//                review.rating.avg()
-//            )
-            movie, review, movieCategory
+        val movies = queryFactory.select(
+            Projections.constructor(
+                MovieData::class.java,
+                movie.id,
+                movie.title,
+                movie.actor,
+                movie.director,
+                movie.releaseDate,
+                review.rating.avg(),
+            )
         )
             .from(movie)
-            .innerJoin(review).on(movie.eq(review.movie))
+            .leftJoin(review).on(movie.eq(review.movie))
             .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .where(movieCategory.category.name.eq(categoryName))
             .groupBy(
-                movie.id,
-                movieCategory.id,
-                review.id
+                movie.id
             )
+            .orderBy(movie.releaseDate.desc())
             .fetch()
 
-        return emptyList()
+        val movieByCategories = queryFactory.select(
+            Projections.constructor(
+                IdCategory::class.java,
+                movie.id,
+                category.name
+            )
+        )
+            .from(movie)
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .fetch()
+
+        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
+
+        movieByCategories.forEach {
+            if (!categoryMap.containsKey(it.movieId)) {
+                categoryMap[it.movieId] = mutableListOf()
+            }
+            categoryMap[it.movieId]?.add(it.categoryName)
+        }
+
+
+        return movies.map {
+            MovieResponse(
+                it.movieId,
+                it.title,
+                it.directors,
+                it.actors,
+                categoryMap[it.movieId]!!,
+                it.releaseDate,
+                it.rating,
+            )
+        }
     }
 
     private fun <T> JPAQuery<T>.applyOrderBy(orderBy: String): JPAQuery<T> {
