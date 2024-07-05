@@ -130,6 +130,61 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         TODO("Not yet implemented")
     }
 
+    override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
+
+
+//        val query = queryFactory.select(
+////            Projections.constructor(
+////                MovieResponse::class.java,
+////                movie.id,
+////                movie.title,
+////                movie.director,
+////                movie.actor,
+////                movieCategory.category,
+////                movie.releaseDate,
+////                review.rating.avg()
+////            )
+//            movie, review.rating.avg(), movieCategory
+//        )
+//            .from(movie)
+//            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+//            .innerJoin(review).on(movie.eq(review.movie))
+////            .innerJoin(movieCategory.category,category).fetchJoin()
+//            .groupBy(
+//                movie.id,
+//                movieCategory.id,
+////                category.id
+//            )
+//            .orderBy(movie.releaseDate.desc())
+////            .limit(3)
+//            .fetch()
+
+        val query = queryFactory.select(
+//            Projections.constructor(
+//                MovieResponse::class.java,
+//                movie.id,
+//                movie.title,
+//                movie.director,
+//                movie.actor,
+//                movieCategory.category,
+//                movie.releaseDate,
+//                review.rating.avg()
+//            )
+            movie, review, movieCategory
+        )
+            .from(movie)
+            .innerJoin(review).on(movie.eq(review.movie))
+            .innerJoin(movieCategory).on(movie.eq(movieCategory.movie))
+            .groupBy(
+                movie.id,
+                movieCategory.id,
+                review.id
+            )
+            .fetch()
+
+        return emptyList()
+    }
+
     private fun <T> JPAQuery<T>.applyOrderBy(orderBy: String): JPAQuery<T> {
         return when (orderBy) {
             "releaseDate" -> this.orderBy(movie.releaseDate.desc(), movie.id.desc())
