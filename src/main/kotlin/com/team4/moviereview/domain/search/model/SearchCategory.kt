@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Table(name = "search_category")
 class SearchCategory(
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     val category: Category,
 
