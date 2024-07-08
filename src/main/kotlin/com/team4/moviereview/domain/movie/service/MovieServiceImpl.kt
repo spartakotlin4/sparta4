@@ -4,7 +4,6 @@ import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.category.repository.CategoryRepository
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
-import com.team4.moviereview.domain.review.repository.ReviewRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -12,14 +11,16 @@ import org.springframework.stereotype.Service
 @Service
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
-    private val reviewRepository: ReviewRepository,
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
 ) : MovieService {
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
-        val movieList = movieRepository.getMoviesByCursor(pageable, cursor)
-        val pagingMovieList = createCursorPageResponse(movieList, cursor.orderBy, pageable)
+        val movies = movieRepository.getMoviesByCursor(pageable, cursor)
+        val movieList = movies.first
+        val categoryMap = createCategoryMap(movies.second)
+        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        val pagingMovieList = createCursorPageResponse(movieListWithCategory, cursor.orderBy, pageable)
 
         return pagingMovieList
     }
@@ -32,15 +33,21 @@ class MovieServiceImpl(
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.searchMovies(keyword, pageable)
-
+        val movieList = movies.first
+        val categoryMap = createCategoryMap(movies.second)
+        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
         searchService.saveSearchedKeyword(keyword)
 
-        return movies
+        return movieListWithCategory
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)
-        return movies
+        val movieList = movies.first
+        val categoryMap = createCategoryMap(movies.second)
+        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+
+        return movieListWithCategory
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
@@ -49,15 +56,10 @@ class MovieServiceImpl(
         if(category != null ) {
             searchService.saveSearchedCategory(category)
         }
-        return movies
-    }
-
-    private fun getMovieAverageRate(movieId: Long): Double {
-        TODO()
-    }
-
-    private fun getMovieCategories(movieId: Long): List<Category> {
-        TODO()
+        val movieList = movies.first
+        val categoryMap = createCategoryMap(movies.second)
+        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        return movieListWithCategory
     }
 
     private fun createCursorPageResponse(
@@ -78,6 +80,31 @@ class MovieServiceImpl(
         } else null
 
         return CursorPageResponse(movieList.toList(), nextCursor, nextCursorAssist)
+    }
+
+    private fun createCategoryMap(movieByCategories: List<IdCategory>): MutableMap<Long, MutableList<String>> {
+        val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
+        movieByCategories.forEach {
+            if (!categoryMap.containsKey(it.movieId)) {
+                categoryMap[it.movieId] = mutableListOf()
+            }
+            categoryMap[it.movieId]?.add(it.categoryName)
+        }
+        return categoryMap
+    }
+
+    private fun movieCombineWithCategory(movies: List<MovieData>, categoryMap: MutableMap<Long, MutableList<String>>): List<MovieResponse> {
+        return movies.map{
+            MovieResponse(
+                it.movieId,
+                it.title,
+                it.directors,
+                it.actors,
+                categoryMap[it.movieId]!!,
+                it.releaseDate,
+                it.rating,
+            )
+        }
     }
 
 }

@@ -1,18 +1,19 @@
 package com.team4.moviereview.domain.movie.repository.movieRepository
 
 import com.team4.moviereview.domain.movie.dto.*
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface CustomMovieRepository {
 
-    fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): List<MovieResponse>
+    fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): Pair<List<MovieData>, List<IdCategory>>
+
+    fun getMoviesCategories(moviesId: List<Long>): List<IdCategory>
 
     fun getMovieDetails(pageable: Pageable, movieId: Long): MovieDetailResponse
 
-    fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse>
+    fun searchMovies(keyword: String, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>>
 
-    fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
+    fun filterMovies(request: FilterRequest, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>>
 
-    fun getMoviesByCategory(categoryName: String): List<MovieResponse>
+    fun getMoviesByCategory(categoryName: String): Pair<List<MovieData>, List<IdCategory>>
 }
