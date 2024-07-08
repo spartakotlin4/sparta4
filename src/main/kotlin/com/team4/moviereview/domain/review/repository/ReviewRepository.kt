@@ -4,7 +4,7 @@ import com.team4.moviereview.domain.review.model.Review
 import org.springframework.data.jpa.repository.JpaRepository
 
 
-interface ReviewRepository :JpaRepository<Review,Long>{
+interface ReviewRepository :JpaRepository<Review,Long>, CustomReviewRepository{
 
 
 }

@@ -7,9 +7,9 @@ interface CustomMovieRepository {
 
     fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): List<MovieData>
 
-    fun getMoviesCategories(moviesId: List<Long>): List<IdCategory>
+    fun getMoviesCategories(moviesId: List<Long>): List<MovieIdAndCategoryName>
 
-    fun getMovieDetails(pageable: Pageable, movieId: Long): MovieDetailResponse
+    fun getMovieDetails(movieId: Long): MovieData?
 
     fun searchMovies(keyword: String, pageable: Pageable): List<MovieData>
 

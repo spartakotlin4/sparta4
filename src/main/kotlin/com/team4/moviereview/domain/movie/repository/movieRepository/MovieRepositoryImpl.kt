@@ -3,13 +3,14 @@ package com.team4.moviereview.domain.movie.repository.movieRepository
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.Projections
 import com.querydsl.jpa.impl.JPAQuery
-import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.model.QCategory
 import com.team4.moviereview.domain.member.model.QMember
-import com.team4.moviereview.domain.movie.dto.*
+import com.team4.moviereview.domain.movie.dto.CursorRequest
+import com.team4.moviereview.domain.movie.dto.FilterRequest
+import com.team4.moviereview.domain.movie.dto.MovieIdAndCategoryName
+import com.team4.moviereview.domain.movie.dto.MovieData
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
-import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.model.QReview
 import com.team4.moviereview.infra.querydsl.QueryDslSupport
 import org.springframework.data.domain.Pageable
@@ -54,17 +55,16 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         return movies
     }
 
-    override fun getMoviesCategories(moviesId: List<Long>): List<IdCategory> {
+    override fun getMoviesCategories(moviesId: List<Long>): List<MovieIdAndCategoryName> {
 
         val categories = queryFactory.select(
             Projections.constructor(
-                IdCategory::class.java,
+                MovieIdAndCategoryName::class.java,
                 movieCategory.movie.id,
                 category.name
             )
         )
             .from(movieCategory)
-//            .innerJoin(movieCategory).on(movieCategory.movie.eq(movie))
             .innerJoin(movieCategory).on(movieCategory.category.eq(category))
             .where(movie.id.`in`(moviesId))
             .fetch()
@@ -72,11 +72,11 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         return categories
     }
 
-    override fun getMovieDetails(pageable: Pageable, movieId: Long): MovieDetailResponse {
+    override fun getMovieDetails(movieId: Long): MovieData? {
 
         val movieDetail = queryFactory.select(
             Projections.constructor(
-                MovieDetailData::class.java,
+                MovieData::class.java,
                 movie.id,
                 movie.title,
                 movie.director,
@@ -94,47 +94,10 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.director,
                 movie.actor,
             )
-            .fetchOne()!!
+            .fetchOne()
 
-        val reviews = queryFactory.select(
-            Projections.constructor(
-                ReviewResponse::class.java,
-                review.id,
-                review.comment,
-                review.rating,
-                member.nickname,
-                review.createdAt
-            )
-        )
-            .from(review)
-            .innerJoin(member).on(review.member.eq(member))
-            .where(review.movie.id.eq(movieId))
-            .offset(pageable.offset)
-            .limit(pageable.pageSize.toLong())
-            .fetch()
+        return movieDetail
 
-        val category = queryFactory.select(
-            Projections.constructor(
-                CategoryResponse::class.java,
-
-                category.name
-            )
-        )
-            .from(category)
-            .innerJoin(movieCategory).on(category.eq(movieCategory.category))
-            .where(movieCategory.movie.id.eq(movieId))
-            .fetch()
-
-        return MovieDetailResponse(
-            id = movieDetail.id,
-            title = movieDetail.title,
-            director = movieDetail.director,
-            actors = movieDetail.actors,
-            category = category,
-            releaseDate = movieDetail.releaseDate,
-            rating = movieDetail.rating,
-            reviews = reviews
-        )
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieData> {
@@ -232,7 +195,6 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
             .orderBy(movie.releaseDate.desc())
             .fetch()
 
-//        val movieByCategories = getMovieByCategories()
 
         return movies
     }
