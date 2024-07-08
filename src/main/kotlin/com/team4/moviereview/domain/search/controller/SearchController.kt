@@ -18,15 +18,27 @@ class SearchController(
 ) {
 
     @StopWatch
-    @GetMapping("/keyword")
+    @GetMapping("/v1/keyword")
     fun getPopularKeyword(): ResponseEntity<List<SearchWordResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywords())
     }
 
     @StopWatch
-    @GetMapping("/category")
+    @GetMapping("/v1/category")
     fun getPopularCategory(): ResponseEntity<List<SearchCategoryResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularCategory())
+    }
+
+    @StopWatch
+    @GetMapping("/v2/keyword")
+    fun getPopularKeywordWithCache(): ResponseEntity<List<SearchWordResponse>> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.TODO())
+    }
+
+    @StopWatch
+    @GetMapping("/v2/category")
+    fun getPopularCategoryWithCache(): ResponseEntity<List<SearchCategoryResponse>> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.TODO())
     }
 
 }
