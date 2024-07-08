@@ -3,6 +3,7 @@ package com.team4.moviereview.domain.search.controller
 import com.team4.moviereview.domain.search.dto.SearchCategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.service.SearchService
+import com.team4.moviereview.infra.aop.StopWatch
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,11 +17,13 @@ class SearchController(
     private val searchService: SearchService,
 ) {
 
+    @StopWatch
     @GetMapping("/keyword")
     fun getPopularKeyword(): ResponseEntity<List<SearchWordResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywords())
     }
 
+    @StopWatch
     @GetMapping("/category")
     fun getPopularCategory(): ResponseEntity<List<SearchCategoryResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularCategory())
