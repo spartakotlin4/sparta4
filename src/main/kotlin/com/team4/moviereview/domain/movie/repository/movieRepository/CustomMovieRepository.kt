@@ -5,15 +5,15 @@ import org.springframework.data.domain.Pageable
 
 interface CustomMovieRepository {
 
-    fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): Pair<List<MovieData>, List<IdCategory>>
+    fun getMoviesByCursor(pageable: Pageable, cursor: CursorRequest): List<MovieData>
 
     fun getMoviesCategories(moviesId: List<Long>): List<IdCategory>
 
     fun getMovieDetails(pageable: Pageable, movieId: Long): MovieDetailResponse
 
-    fun searchMovies(keyword: String, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>>
+    fun searchMovies(keyword: String, pageable: Pageable): List<MovieData>
 
-    fun filterMovies(request: FilterRequest, pageable: Pageable): Pair<List<MovieData>, List<IdCategory>>
+    fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieData>
 
-    fun getMoviesByCategory(categoryName: String): Pair<List<MovieData>, List<IdCategory>>
+    fun getMoviesByCategory(categoryName: String): List<MovieData>
 }

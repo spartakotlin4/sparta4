@@ -17,9 +17,10 @@ class MovieServiceImpl(
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movies = movieRepository.getMoviesByCursor(pageable, cursor)
-        val movieList = movies.first
-        val categoryMap = createCategoryMap(movies.second)
-        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        val moviesId = movies.map { it.movieId }
+        val categoryMap = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(categoryMap)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
         val pagingMovieList = createCursorPageResponse(movieListWithCategory, cursor.orderBy, pageable)
 
         return pagingMovieList
@@ -33,9 +34,10 @@ class MovieServiceImpl(
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.searchMovies(keyword, pageable)
-        val movieList = movies.first
-        val categoryMap = createCategoryMap(movies.second)
-        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        val moviesId = movies.map { it.movieId }
+        val categoryMap = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(categoryMap)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
         searchService.saveSearchedKeyword(keyword)
 
         return movieListWithCategory
@@ -43,22 +45,25 @@ class MovieServiceImpl(
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)
-        val movieList = movies.first
-        val categoryMap = createCategoryMap(movies.second)
-        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        val moviesId = movies.map { it.movieId }
+        val categoryMap = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(categoryMap)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
 
         return movieListWithCategory
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
         val movies = movieRepository.getMoviesByCategory(categoryName)
-        val category : Category? = categoryRepository.findByName(categoryName)
-        if(category != null ) {
+        val category: Category? = categoryRepository.findByName(categoryName)
+        if (category != null) {
             searchService.saveSearchedCategory(category)
         }
-        val movieList = movies.first
-        val categoryMap = createCategoryMap(movies.second)
-        val movieListWithCategory = movieCombineWithCategory(movieList, categoryMap)
+        val moviesId = movies.map { it.movieId }
+        val categoryMap = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(categoryMap)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
         return movieListWithCategory
     }
 
@@ -93,8 +98,11 @@ class MovieServiceImpl(
         return categoryMap
     }
 
-    private fun movieCombineWithCategory(movies: List<MovieData>, categoryMap: MutableMap<Long, MutableList<String>>): List<MovieResponse> {
-        return movies.map{
+    private fun movieCombineWithCategory(
+        movies: List<MovieData>,
+        categoryMap: MutableMap<Long, MutableList<String>>
+    ): List<MovieResponse> {
+        return movies.map {
             MovieResponse(
                 it.movieId,
                 it.title,
