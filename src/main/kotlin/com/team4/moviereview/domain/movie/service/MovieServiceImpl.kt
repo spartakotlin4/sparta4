@@ -4,13 +4,17 @@ import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.category.repository.CategoryRepository
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
+import com.team4.moviereview.domain.review.dto.ReviewResponse
+import com.team4.moviereview.domain.review.repository.ReviewRepository
 import com.team4.moviereview.domain.search.service.SearchService
+import com.team4.moviereview.infra.exception.ModelNotFoundException
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
 class MovieServiceImpl(
     private val movieRepository: MovieRepository,
+    private val reviewRepository: ReviewRepository,
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
 ) : MovieService {
@@ -18,8 +22,8 @@ class MovieServiceImpl(
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movies = movieRepository.getMoviesByCursor(pageable, cursor)
         val moviesId = movies.map { it.movieId }
-        val categoryMap = movieRepository.getMoviesCategories(moviesId)
-        val categories = createCategoryMap(categoryMap)
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
         val movieListWithCategory = movieCombineWithCategory(movies, categories)
         val pagingMovieList = createCursorPageResponse(movieListWithCategory, cursor.orderBy, pageable)
 
@@ -27,17 +31,26 @@ class MovieServiceImpl(
     }
 
     override fun getMovieDetails(movieId: Long, pageable: Pageable): MovieDetailResponse {
-        val movieDetails = movieRepository.getMovieDetails(pageable, movieId)
+        val movie = movieRepository.getMovieDetails(movieId) ?: throw ModelNotFoundException("Movie", movieId)
 
-        return movieDetails
+        val reviews = reviewRepository.getReviews(movie.movieId, pageable)
+
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(listOf(movie.movieId))
+
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+
+        val movieDetailsResponse = movieDetailsWithReviewsAndCategories(movie, reviews, categories)
+
+        return movieDetailsResponse
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.searchMovies(keyword, pageable)
         val moviesId = movies.map { it.movieId }
-        val categoryMap = movieRepository.getMoviesCategories(moviesId)
-        val categories = createCategoryMap(categoryMap)
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
         val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
         searchService.saveSearchedKeyword(keyword)
 
         return movieListWithCategory
@@ -46,8 +59,8 @@ class MovieServiceImpl(
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)
         val moviesId = movies.map { it.movieId }
-        val categoryMap = movieRepository.getMoviesCategories(moviesId)
-        val categories = createCategoryMap(categoryMap)
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
         val movieListWithCategory = movieCombineWithCategory(movies, categories)
 
         return movieListWithCategory
@@ -55,14 +68,15 @@ class MovieServiceImpl(
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
         val movies = movieRepository.getMoviesByCategory(categoryName)
+        val moviesId = movies.map { it.movieId }
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
         val category: Category? = categoryRepository.findByName(categoryName)
         if (category != null) {
             searchService.saveSearchedCategory(category)
         }
-        val moviesId = movies.map { it.movieId }
-        val categoryMap = movieRepository.getMoviesCategories(moviesId)
-        val categories = createCategoryMap(categoryMap)
-        val movieListWithCategory = movieCombineWithCategory(movies, categories)
 
         return movieListWithCategory
     }
@@ -87,7 +101,7 @@ class MovieServiceImpl(
         return CursorPageResponse(movieList.toList(), nextCursor, nextCursorAssist)
     }
 
-    private fun createCategoryMap(movieByCategories: List<IdCategory>): MutableMap<Long, MutableList<String>> {
+    private fun createCategoryMap(movieByCategories: List<MovieIdAndCategoryName>): MutableMap<Long, MutableList<String>> {
         val categoryMap: MutableMap<Long, MutableList<String>> = mutableMapOf<Long, MutableList<String>>()
         movieByCategories.forEach {
             if (!categoryMap.containsKey(it.movieId)) {
@@ -113,6 +127,24 @@ class MovieServiceImpl(
                 it.rating,
             )
         }
+    }
+
+    private fun movieDetailsWithReviewsAndCategories(
+        movie: MovieData,
+        reviews: List<ReviewResponse>,
+        categoryMap: MutableMap<Long, MutableList<String>>
+    ): MovieDetailResponse {
+
+        return MovieDetailResponse(
+            id = movie.movieId,
+            title = movie.title,
+            director = movie.directors,
+            actors = movie.actors,
+            category = categoryMap[movie.movieId]!!,
+            releaseDate = movie.releaseDate,
+            rating = movie.rating,
+            reviews = reviews
+        )
     }
 
 }
