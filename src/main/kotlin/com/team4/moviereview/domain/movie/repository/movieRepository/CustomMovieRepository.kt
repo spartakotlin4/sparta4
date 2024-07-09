@@ -1,6 +1,9 @@
 package com.team4.moviereview.domain.movie.repository.movieRepository
 
-import com.team4.moviereview.domain.movie.dto.*
+import com.team4.moviereview.domain.movie.dto.CursorRequest
+import com.team4.moviereview.domain.movie.dto.FilterRequest
+import com.team4.moviereview.domain.movie.dto.MovieData
+import com.team4.moviereview.domain.movie.dto.MovieIdAndCategoryName
 import org.springframework.data.domain.Pageable
 
 interface CustomMovieRepository {
