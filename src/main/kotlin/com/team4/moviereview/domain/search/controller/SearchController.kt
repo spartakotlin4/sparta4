@@ -38,7 +38,7 @@ class SearchController(
     @StopWatch
     @GetMapping("/v2/category")
     fun getPopularCategoryWithCache(): ResponseEntity<List<SearchCategoryResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(searchService.TODO())
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularCategoryWithCache())
     }
 
 }

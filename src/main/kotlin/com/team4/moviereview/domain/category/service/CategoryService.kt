@@ -5,6 +5,8 @@ import com.team4.moviereview.domain.category.dto.request.CategoryUpdateRequest
 import com.team4.moviereview.domain.category.dto.response.CategoryResponse
 import com.team4.moviereview.domain.category.model.Category
 import com.team4.moviereview.domain.category.repository.CategoryRepository
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +25,7 @@ class CategoryService(
         val category = Category(name = request.name)
 
         categoryRepository.save(category)
+
 
         return CategoryResponse.from(category)
     }
@@ -51,4 +54,13 @@ class CategoryService(
         categoryRepository.delete(category)
     }
 
+    @Cacheable("category")
+    fun getCachingCategory(): List<Category> {
+        return categoryRepository.findAll()
+    }
+
+    @CachePut("category")
+    fun refreshCategory(): List<Category> {
+        return categoryRepository.findAll()
+    }
 }
