@@ -70,7 +70,7 @@ class MovieServiceImpl(
 
 
         //1. 캐시에서 데이터 조회
-        val cachedMovies = resultCache?.get("'${keyword}'")?.get() as? List<MovieResponse>
+        val cachedMovies = resultCache?.get(keyword)?.get() as? List<MovieResponse>
         if (!cachedMovies.isNullOrEmpty()) {
             return cachedMovies
         }
@@ -80,16 +80,14 @@ class MovieServiceImpl(
 
         //3. 검색 키워드 저장
 
-        // var popularKeyword =
 
         // 4. trendingKeywordCache에 존재하는 keyword일 경우, 검색결과캐시에 저장
-        val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse> // 인기검긱
+        val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse>
+        val keywordExistsInCache = isTrendingKeyword?.any { it.keyword == keyword } ?: false
 
-
-//        if (isTrendingKeyword) {
-//            resultCache?.put(keyword, movieListWithCategory)
-//        }
-
+        if (keywordExistsInCache) {
+            resultCache?.put(keyword, movieListWithCategory)
+        }
 
         return movieListWithCategory
     }
