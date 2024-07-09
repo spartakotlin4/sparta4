@@ -2,6 +2,7 @@ package com.team4.moviereview.domain.movie.controller
 
 import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.service.MovieService
+import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.aop.StopWatch
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/movies")
 class MovieController(
-    private val movieService: MovieService
+    private val movieService: MovieService,
+    private val searchService: SearchService,
 ) {
 
     @GetMapping("/list")
@@ -33,13 +35,23 @@ class MovieController(
     }
 
     @StopWatch
-    @GetMapping("/search")
+    @GetMapping("/v1/search")
     fun searchMovies(
         @RequestParam(value = "keyword", required = true) keyword: String,
         pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity.status(HttpStatus.OK)
             .body(movieService.searchMovies(keyword, pageable))
+    }
+
+    @StopWatch
+    @GetMapping("/v2/search")
+    fun searchMoviesWithCache(
+        @RequestParam(value = "keyword", required = true) keyword: String,
+        pageable: Pageable,
+    ): ResponseEntity<List<MovieResponse>> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.searchMovieWithCache(keyword, pageable))
     }
 
 
@@ -55,12 +67,17 @@ class MovieController(
 
 
     @StopWatch
-    @GetMapping("/category")
+    @GetMapping("/v1/category")
     fun getMoviesByCategory(
         @RequestParam(value = "categoryName") categoryName: String
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(movieService.getMoviesByCategory(categoryName))
+    }
+
+    @PostMapping("/test")
+    fun test() {
+        searchService.saveCachingCategoryInDB()
     }
 }

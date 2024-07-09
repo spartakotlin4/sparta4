@@ -6,10 +6,18 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.domain.search.model.SearchWord
+import com.team4.moviereview.domain.search.repository.SearchWordRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
+import org.springframework.cache.CacheManager
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
 class MovieServiceImpl(
@@ -18,6 +26,7 @@ class MovieServiceImpl(
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
 ) : MovieService {
+
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movies = movieRepository.getMoviesByCursor(pageable, cursor)
@@ -56,6 +65,19 @@ class MovieServiceImpl(
         return movieListWithCategory
     }
 
+    override fun searchMovieWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val movies = movieRepository.searchMovies(keyword, pageable)
+        val moviesId = movies.map { it.movieId }
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
+
+        searchService.saveKeywordInCache(keyword)
+
+        return movieListWithCategory
+    }
+
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)
         val moviesId = movies.map { it.movieId }
@@ -75,11 +97,15 @@ class MovieServiceImpl(
 
         val category: Category? = categoryRepository.findByName(categoryName)
         if (category != null) {
-            searchService.saveSearchedCategory(category)
+            searchService.saveCategoryInCache(category)
         }
+
+
 
         return movieListWithCategory
     }
+
+
 
     private fun createCursorPageResponse(
         movieList: List<MovieResponse>,
@@ -146,6 +172,8 @@ class MovieServiceImpl(
             reviews = reviews
         )
     }
-
 }
+
+
+
 

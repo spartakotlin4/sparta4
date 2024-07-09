@@ -13,4 +13,8 @@ interface MovieService {
     fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
 
     fun getMoviesByCategory(categoryName: String): List<MovieResponse>
+
+    fun searchMovieWithCache(keyword: String, pageable: Pageable): List<MovieResponse>
+//    fun test() : String
+
 }
