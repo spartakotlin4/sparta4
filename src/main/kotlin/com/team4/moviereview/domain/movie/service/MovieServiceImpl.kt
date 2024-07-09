@@ -8,6 +8,7 @@ import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
+import org.springframework.cache.CacheManager
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -17,6 +18,7 @@ class MovieServiceImpl(
     private val reviewRepository: ReviewRepository,
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
+    private val cacheManager: CacheManager,
 ) : MovieService {
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
@@ -45,13 +47,34 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val resultCache = cacheManager.getCache("trendingResultCache")
+        val cacheKey = "$keyword-${pageable.pageNumber}"
+
+        val keywordCache = cacheManager.getCache("trendingKeywordCache")
+
+
+        //1. 캐시에서 데이터 조회
+        val cachedMovies = resultCache?.get(cacheKey, List::class.java) as? List<MovieResponse>
+        if (cachedMovies != null) {
+            return cachedMovies
+        }
+
+        //2. 캐시 미스 시 db에서 조회
         val movies = movieRepository.searchMovies(keyword, pageable)
         val moviesId = movies.map { it.movieId }
         val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
         val categories = createCategoryMap(movieIdAndCategoriesName)
         val movieListWithCategory = movieCombineWithCategory(movies, categories)
 
+
+        //3. 검색 키워드 저장
         searchService.saveSearchedKeyword(keyword)
+
+        // 4. trendingKeywordCache에 존재하는 keyword일 경우, 캐시에 저장
+        val isTrendingKeyword = keywordCache?.get(keyword) != null
+        if (isTrendingKeyword) {
+            resultCache?.put(cacheKey, movieListWithCategory)
+        }
 
         return movieListWithCategory
     }
