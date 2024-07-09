@@ -6,6 +6,7 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.repository.SearchWordRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
@@ -49,52 +50,50 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
-        val movieListWithCategory = searchMoviesInDB(keyword, pageable)
-
         searchService.saveSearchedKeyword(keyword)
-
-        return movieListWithCategory
+        return searchMoviesInDB(keyword, pageable)
     }
 
-    override fun searchMoviesWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
-        val resultCache = cacheManager.getCache("trendingResultCache")
-        val cacheKey = "$keyword-${pageable.pageNumber}"
-
-        val keywordCache = cacheManager.getCache("trendingKeywordCache")
-
-
-        //1. 캐시에서 데이터 조회
-        val cachedMovies = resultCache?.get(cacheKey, List::class.java) as? List<MovieResponse>
-        if (cachedMovies != null) {
-            return cachedMovies
-        }
-
-        //2. 캐시 미스 시 db에서 조회
-        val movieListWithCategory = searchMoviesInDB(keyword, pageable)
-
-
-        //3. 검색 키워드 저장
-        searchService.saveKeywordInCache(keyword)
-
-        // 4. trendingKeywordCache에 존재하는 keyword일 경우, 캐시에 저장
-        val isTrendingKeyword = keywordCache?.get(keyword) != null
-        if (isTrendingKeyword) {
-            resultCache?.put(cacheKey, movieListWithCategory)
-        }
-
-        return movieListWithCategory
-    }
-
-    override fun searchMoviesInDB(keyword: String, pageable: Pageable): List<MovieResponse> {
+    private fun searchMoviesInDB(keyword: String, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.searchMovies(keyword, pageable)
         val moviesId = movies.map { it.movieId }
         val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
         val categories = createCategoryMap(movieIdAndCategoriesName)
-        val movieListWithCategory = movieCombineWithCategory(movies, categories)
 
-        return movieListWithCategory
+        return movieCombineWithCategory(movies, categories)
 
     }
+
+    override fun searchMoviesWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val resultCache = cacheManager.getCache("trendingResultCache")
+        val keywordCache = cacheManager.getCache("trendingKeywordCache")!!
+
+
+        //1. 캐시에서 데이터 조회
+        val cachedMovies = resultCache?.get("'${keyword}'")?.get() as? List<MovieResponse>
+        if (!cachedMovies.isNullOrEmpty()) {
+            return cachedMovies
+        }
+
+        //2. 캐시미스 -> db에서 조회
+        val movieListWithCategory = searchMoviesInDB(keyword, pageable)
+
+        //3. 검색 키워드 저장
+
+        // var popularKeyword =
+
+        // 4. trendingKeywordCache에 존재하는 keyword일 경우, 검색결과캐시에 저장
+        val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse> // 인기검긱
+
+
+//        if (isTrendingKeyword) {
+//            resultCache?.put(keyword, movieListWithCategory)
+//        }
+
+
+        return movieListWithCategory
+    }
+
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)

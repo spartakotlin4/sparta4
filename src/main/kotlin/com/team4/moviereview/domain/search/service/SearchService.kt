@@ -39,7 +39,7 @@ class SearchService(
         searchCategoryRepository.save(SearchCategory(category, LocalDate.now()))
     }
 
-    @Cacheable(value = ["trendingKeywordCache"])
+    @Cacheable(value = ["trendingKeywordCache"], key = "'trendKeyword'")
     fun getPopularKeywordWithCache(): List<SearchWordResponse> {
         return searchWordRepository.findAllByLimit(rankLimit)
     }

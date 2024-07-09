@@ -10,7 +10,7 @@ interface MovieService {
 
     fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse>
     fun searchMoviesWithCache(keyword: String, pageable: Pageable): List<MovieResponse>
-    fun searchMoviesInDB(keyword: String, pageable: Pageable): List<MovieResponse>
+    //fun searchMoviesInDB(keyword: String, pageable: Pageable): List<MovieResponse>
 
     fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse>
 
