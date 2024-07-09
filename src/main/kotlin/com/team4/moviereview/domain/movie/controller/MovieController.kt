@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/movies")
 class MovieController(
-    private val movieService: MovieService
+    private val movieService: MovieService,
 ) {
 
     @GetMapping("/list")
@@ -33,7 +33,7 @@ class MovieController(
     }
 
     @StopWatch
-    @GetMapping("/search")
+    @GetMapping("/v1/search")
     fun searchMovies(
         @RequestParam(value = "keyword", required = true) keyword: String,
         pageable: Pageable,
@@ -55,7 +55,7 @@ class MovieController(
 
 
     @StopWatch
-    @GetMapping("/category")
+    @GetMapping("/v1/category")
     fun getMoviesByCategory(
         @RequestParam(value = "categoryName") categoryName: String
     ): ResponseEntity<List<MovieResponse>> {
@@ -63,4 +63,5 @@ class MovieController(
             .status(HttpStatus.OK)
             .body(movieService.getMoviesByCategory(categoryName))
     }
+
 }

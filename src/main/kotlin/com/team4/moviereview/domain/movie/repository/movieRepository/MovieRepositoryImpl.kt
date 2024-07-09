@@ -7,8 +7,8 @@ import com.team4.moviereview.domain.category.model.QCategory
 import com.team4.moviereview.domain.member.model.QMember
 import com.team4.moviereview.domain.movie.dto.CursorRequest
 import com.team4.moviereview.domain.movie.dto.FilterRequest
-import com.team4.moviereview.domain.movie.dto.MovieIdAndCategoryName
 import com.team4.moviereview.domain.movie.dto.MovieData
+import com.team4.moviereview.domain.movie.dto.MovieIdAndCategoryName
 import com.team4.moviereview.domain.movie.model.QMovie
 import com.team4.moviereview.domain.movie.model.QMovieCategory
 import com.team4.moviereview.domain.review.model.QReview

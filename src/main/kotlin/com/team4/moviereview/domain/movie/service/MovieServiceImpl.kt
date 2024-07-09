@@ -19,6 +19,7 @@ class MovieServiceImpl(
     private val categoryRepository: CategoryRepository,
 ) : MovieService {
 
+
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movies = movieRepository.getMoviesByCursor(pageable, cursor)
         val moviesId = movies.map { it.movieId }
@@ -56,6 +57,19 @@ class MovieServiceImpl(
         return movieListWithCategory
     }
 
+    override fun searchMovieWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val movies = movieRepository.searchMovies(keyword, pageable)
+        val moviesId = movies.map { it.movieId }
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
+
+        searchService.saveKeywordInCache(keyword)
+
+        return movieListWithCategory
+    }
+
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
         val movies = movieRepository.filterMovies(request, pageable)
         val moviesId = movies.map { it.movieId }
@@ -80,6 +94,8 @@ class MovieServiceImpl(
 
         return movieListWithCategory
     }
+
+
 
     private fun createCursorPageResponse(
         movieList: List<MovieResponse>,
@@ -146,6 +162,8 @@ class MovieServiceImpl(
             reviews = reviews
         )
     }
-
 }
+
+
+
 

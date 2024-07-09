@@ -27,4 +27,17 @@ class ScheduledTasks(
         searchService.refreshPopularCategoryWithCache()
         logger.info("${LocalDateTime.now()} 에 refreshPopularCategory 를 실행했습니다")
     }
+
+    @Scheduled(cron = "0 */1 * * * ?")
+    fun saveKeyword() {
+        searchService.saveCachingKeywordInDB()
+        logger.info("${LocalDateTime.now()} 에 saveCachingKeywordInDB 를 실행했습니다")
+    }
+
+    @Scheduled(cron = "30 */1 * * * ?")
+    fun saveCategory() {
+        searchService.saveCachingCategoryInDB()
+        logger.info("${LocalDateTime.now()} 에 saveCachingCategoryInDB 를 실행했습니다")
+    }
+
 }
