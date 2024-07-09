@@ -7,7 +7,6 @@ import com.team4.moviereview.domain.movie.repository.movieRepository.MovieReposi
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
-import com.team4.moviereview.domain.search.repository.SearchWordRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
 import org.springframework.cache.CacheManager
