@@ -19,6 +19,8 @@ class SearchService(
     private val searchCategoryRepository: SearchCategoryRepository
 ) {
     private val rankLimit = 10
+    private val memoryCacheKeywords: MutableMap<String, Long> = mutableMapOf()
+    private val memoryCacheCategories: MutableMap<String, Long> = mutableMapOf()
 
     fun getPopularKeywords(): List<SearchWordResponse> {
         return searchWordRepository.findAllByLimit(rankLimit)
@@ -57,4 +59,67 @@ class SearchService(
         return searchCategoryRepository.findAllByLimit(rankLimit)
     }
 
+
+
+    @CachePut(value = ["trendingKeywordCache"], key = "'keywordList'")
+    fun saveSearchedKeywordWithCache(keyword: String): List<SearchWordResponse> {
+        val count = memoryCacheKeywords[keyword] ?: 0L
+        memoryCacheKeywords[keyword] = count + 1
+        return getSortedKeywords()
+    }
+
+    @CachePut(value = ["trendingCategoryCache"], key = "'categoryList'")
+    fun saveSearchedCategoryWithCache(categoryName: String): List<SearchCategoryResponse> {
+        val count = memoryCacheCategories[categoryName] ?: 0L
+        memoryCacheCategories[categoryName] = count + 1
+        return getSortedCategories()
+    }
+
+
+
+
+
+
+
+
+    private fun getSortedKeywords(): List<SearchWordResponse> {
+        return memoryCacheKeywords.entries
+            .sortedByDescending { it.value }
+            .take(rankLimit)
+            .map { SearchWordResponse(it.key, it.value) }
+    }
+
+    private fun getSortedCategories(): List<SearchCategoryResponse> {
+        return memoryCacheCategories.entries
+            .sortedByDescending { it.value }
+            .take(rankLimit)
+            .map { SearchCategoryResponse(it.key, it.value) }
+    }
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
