@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/movies")
 class MovieController(
     private val movieService: MovieService,
-    private val searchService: SearchService,
 ) {
 
     @GetMapping("/list")
