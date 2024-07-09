@@ -7,7 +7,6 @@ import com.team4.moviereview.infra.aop.StopWatch
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -39,14 +38,14 @@ class SearchController(
     @StopWatch
     @GetMapping("/v2/category")
     fun getPopularCategoryWithCache(): ResponseEntity<List<SearchCategoryResponse>> {
-//        return ResponseEntity.status(HttpStatus.OK).body(searchService.TODO())
-        TODO()
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularCategoryWithCache())
     }
     
     // 스케쥴러 도입시 컨트롤러에서 사라지고 service 것만 실행
     @GetMapping("/v2/keyword/delete")
     fun getPopularKeywordWithCacheEvict() : ResponseEntity<String> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywordCacheEvict())
+
     }
 
 }
