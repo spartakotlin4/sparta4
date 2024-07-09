@@ -80,7 +80,7 @@ class MovieServiceImpl(
         val movieListWithCategory = searchMoviesInDB(keyword, pageable)
 
         //3. 검색 키워드 저장
-
+        searchService.saveKeywordInCache(keyword)
 
         // 4. trendingKeywordCache에 존재하는 keyword일 경우, 검색결과캐시에 저장
         val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse>
@@ -118,7 +118,6 @@ class MovieServiceImpl(
 
         return movieListWithCategory
     }
-
 
 
     private fun createCursorPageResponse(
