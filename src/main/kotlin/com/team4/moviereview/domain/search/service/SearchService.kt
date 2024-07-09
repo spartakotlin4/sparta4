@@ -7,6 +7,8 @@ import com.team4.moviereview.domain.search.model.SearchCategory
 import com.team4.moviereview.domain.search.model.SearchWord
 import com.team4.moviereview.domain.search.repository.SearchCategoryRepository
 import com.team4.moviereview.domain.search.repository.SearchWordRepository
+import jakarta.transaction.Transactional
+import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
@@ -16,7 +18,8 @@ import java.time.LocalDate
 @Service
 class SearchService(
     private val searchWordRepository: SearchWordRepository,
-    private val searchCategoryRepository: SearchCategoryRepository
+    private val searchCategoryRepository: SearchCategoryRepository,
+    private val cacheManager: CacheManager,
 ) {
     private val rankLimit = 10
 
@@ -55,6 +58,33 @@ class SearchService(
     @CachePut("popular-categories")
     fun refreshPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit)
+    }
+
+
+    @Cacheable(value = ["hotKeyword"], key = "'keywordCache'")
+    fun saveKeywordInCache(keyword: String): Map<Long, String> {
+        val cache = cacheManager.getCache("hotKeyword")
+        val cacheValue = cache?.get("keywordCache")?.get() as? MutableMap<Long, String> ?: mutableMapOf()
+
+        val newId = (cacheValue.keys.maxOrNull() ?: 0L) + 1
+        cacheValue[newId] = keyword
+
+        cache?.put("keywordCache", cacheValue)
+        return cacheValue
+    }
+
+
+    @Transactional
+    fun saveCachingKeywordInDB() {
+        val cache = cacheManager.getCache("hotKeyword")
+        val cacheValue = cache?.get("keywordCache")?.get() as? Map<Long, String>
+
+        cacheValue?.let { cachedWords ->
+            val searchWords = cachedWords.map { SearchWord(it.value, LocalDate.now()) }
+            searchWordRepository.saveAll(searchWords)
+        }
+
+        cache?.evict("keywordCache")
     }
 
 }

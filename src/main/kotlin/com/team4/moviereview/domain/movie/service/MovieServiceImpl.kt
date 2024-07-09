@@ -6,6 +6,7 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.domain.search.repository.SearchWordRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
 import org.springframework.cache.CacheManager
@@ -19,6 +20,7 @@ class MovieServiceImpl(
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
     private val cacheManager: CacheManager,
+    private val searchWordRepository: SearchWordRepository,
 ) : MovieService {
 
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
@@ -68,7 +70,7 @@ class MovieServiceImpl(
 
 
         //3. 검색 키워드 저장
-        searchService.saveSearchedKeyword(keyword)
+        searchService.saveKeywordInCache(keyword)
 
         // 4. trendingKeywordCache에 존재하는 keyword일 경우, 캐시에 저장
         val isTrendingKeyword = keywordCache?.get(keyword) != null
@@ -169,6 +171,7 @@ class MovieServiceImpl(
             reviews = reviews
         )
     }
+
 
 }
 
