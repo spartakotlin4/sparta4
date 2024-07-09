@@ -6,18 +6,10 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
-import com.team4.moviereview.domain.search.model.SearchWord
-import com.team4.moviereview.domain.search.repository.SearchWordRepository
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
-import org.springframework.cache.CacheManager
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
 
 @Service
 class MovieServiceImpl(
