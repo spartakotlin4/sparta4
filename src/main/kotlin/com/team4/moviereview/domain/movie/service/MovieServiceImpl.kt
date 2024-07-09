@@ -21,7 +21,6 @@ class MovieServiceImpl(
     private val searchService: SearchService,
     private val categoryRepository: CategoryRepository,
     private val cacheManager: CacheManager,
-    private val searchWordRepository: SearchWordRepository,
 ) : MovieService {
 
 

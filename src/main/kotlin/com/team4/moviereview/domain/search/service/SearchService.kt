@@ -20,7 +20,6 @@ class SearchService(
     private val searchWordRepository: SearchWordRepository,
     private val searchCategoryRepository: SearchCategoryRepository,
     private val cacheManager: CacheManager,
-    private val categoryService: CategoryService,
 ) {
     private val startDate = LocalDate.now().minusDays(1)
     private val rankLimit = 10
