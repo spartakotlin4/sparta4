@@ -26,7 +26,6 @@ class CategoryService(
 
         categoryRepository.save(category)
 
-        refreshCategory()
 
         return CategoryResponse.from(category)
     }
@@ -42,8 +41,6 @@ class CategoryService(
         }
 
         category.updateName(request.name)
-
-        refreshCategory()
 
         return CategoryResponse.from(category)
     }
