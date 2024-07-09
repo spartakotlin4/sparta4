@@ -42,6 +42,16 @@ class MovieController(
             .body(movieService.searchMovies(keyword, pageable))
     }
 
+    @StopWatch
+    @GetMapping("/search/v2")
+    fun searchMoviesWithCache(
+        @RequestParam(value = "keyword", required = true) keyword: String,
+        pageable: Pageable,
+    ): ResponseEntity<List<MovieResponse>> {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(movieService.searchMoviesWithCache(keyword, pageable))
+    }
+
 
     @StopWatch
     @GetMapping("/filter")

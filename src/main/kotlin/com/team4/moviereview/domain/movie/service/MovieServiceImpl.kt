@@ -49,6 +49,14 @@ class MovieServiceImpl(
     }
 
     override fun searchMovies(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val movieListWithCategory = searchMoviesInDB(keyword, pageable)
+
+        searchService.saveSearchedKeyword(keyword)
+
+        return movieListWithCategory
+    }
+
+    override fun searchMoviesWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
         val resultCache = cacheManager.getCache("trendingResultCache")
         val cacheKey = "$keyword-${pageable.pageNumber}"
 
@@ -62,11 +70,7 @@ class MovieServiceImpl(
         }
 
         //2. 캐시 미스 시 db에서 조회
-        val movies = movieRepository.searchMovies(keyword, pageable)
-        val moviesId = movies.map { it.movieId }
-        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
-        val categories = createCategoryMap(movieIdAndCategoriesName)
-        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+        val movieListWithCategory = searchMoviesInDB(keyword, pageable)
 
 
         //3. 검색 키워드 저장
@@ -79,6 +83,17 @@ class MovieServiceImpl(
         }
 
         return movieListWithCategory
+    }
+
+    override fun searchMoviesInDB(keyword: String, pageable: Pageable): List<MovieResponse> {
+        val movies = movieRepository.searchMovies(keyword, pageable)
+        val moviesId = movies.map { it.movieId }
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
+        return movieListWithCategory
+
     }
 
     override fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieResponse> {
