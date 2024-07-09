@@ -7,6 +7,7 @@ import com.team4.moviereview.domain.search.model.SearchCategory
 import com.team4.moviereview.domain.search.model.SearchWord
 import com.team4.moviereview.domain.search.repository.SearchCategoryRepository
 import com.team4.moviereview.domain.search.repository.SearchWordRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -35,6 +36,17 @@ class SearchService(
         searchCategoryRepository.save(SearchCategory(category, LocalDate.now()))
     }
 
+    @Cacheable(value = ["trendingKeywordCache"])
+    fun getPopularKeywordWithCache(): List<SearchWordResponse> {
+        return searchWordRepository.findAllByLimit(rankLimit)
+    }
+
+    @CacheEvict(value = ["trendingKeywordCache"])
+    fun getPopularKeywordCacheEvict(): String {
+        return "인기 키워드 지우기 성공"
+    }
+
+
     @Cacheable("popular-categories")
     fun getPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit)
@@ -44,4 +56,5 @@ class SearchService(
     fun refreshPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit)
     }
+
 }

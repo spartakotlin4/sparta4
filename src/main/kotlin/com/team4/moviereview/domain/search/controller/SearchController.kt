@@ -32,13 +32,20 @@ class SearchController(
     @StopWatch
     @GetMapping("/v2/keyword")
     fun getPopularKeywordWithCache(): ResponseEntity<List<SearchWordResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(searchService.TODO())
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywordWithCache())
     }
 
     @StopWatch
     @GetMapping("/v2/category")
     fun getPopularCategoryWithCache(): ResponseEntity<List<SearchCategoryResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularCategoryWithCache())
+    }
+    
+    // 스케쥴러 도입시 컨트롤러에서 사라지고 service 것만 실행
+    @GetMapping("/v2/keyword/delete")
+    fun getPopularKeywordWithCacheEvict() : ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywordCacheEvict())
+
     }
 
 }
