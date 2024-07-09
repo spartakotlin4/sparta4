@@ -24,6 +24,7 @@ class MovieServiceImpl(
     private val searchWordRepository: SearchWordRepository,
 ) : MovieService {
 
+
     override fun getMovieList(pageable: Pageable, cursor: CursorRequest): CursorPageResponse {
         val movies = movieRepository.getMoviesByCursor(pageable, cursor)
         val moviesId = movies.map { it.movieId }
@@ -118,6 +119,8 @@ class MovieServiceImpl(
         return movieListWithCategory
     }
 
+
+
     private fun createCursorPageResponse(
         movieList: List<MovieResponse>,
         cursorType: String,
@@ -186,4 +189,7 @@ class MovieServiceImpl(
 
 
 }
+
+
+
 

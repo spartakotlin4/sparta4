@@ -1,18 +1,18 @@
 package com.team4.moviereview.domain.search.service
 
 import com.team4.moviereview.domain.category.model.Category
+import com.team4.moviereview.domain.category.service.CategoryService
 import com.team4.moviereview.domain.search.dto.SearchCategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.model.SearchCategory
 import com.team4.moviereview.domain.search.model.SearchWord
 import com.team4.moviereview.domain.search.repository.SearchCategoryRepository
 import com.team4.moviereview.domain.search.repository.SearchWordRepository
-import jakarta.transaction.Transactional
 import org.springframework.cache.CacheManager
-import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
@@ -20,6 +20,7 @@ class SearchService(
     private val searchWordRepository: SearchWordRepository,
     private val searchCategoryRepository: SearchCategoryRepository,
     private val cacheManager: CacheManager,
+    private val categoryService: CategoryService,
 ) {
     private val rankLimit = 10
 
@@ -39,18 +40,13 @@ class SearchService(
         searchCategoryRepository.save(SearchCategory(category, LocalDate.now()))
     }
 
-    @Cacheable(value = ["trendingKeywordCache"], key = "'trendKeyword'")
-    fun getPopularKeywordWithCache(): List<SearchWordResponse> {
+    @Cacheable(value = ["trendingKeywordCache1"], key = "#key")
+    fun getPopularKeywordWithCache(key: Long): List<SearchWordResponse> {
         return searchWordRepository.findAllByLimit(rankLimit)
     }
 
-    @CacheEvict(value = ["trendingKeywordCache"])
-    fun getPopularKeywordCacheEvict(): String {
-        return "인기 키워드 지우기 성공"
-    }
 
-
-    @Cacheable("popular-categories")
+    @Cacheable(value = ["popular-categories"])
     fun getPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit)
     }
@@ -60,11 +56,10 @@ class SearchService(
         return searchCategoryRepository.findAllByLimit(rankLimit)
     }
 
-
-    @Cacheable(value = ["hotKeyword"], key = "'keywordCache'")
-    fun saveKeywordInCache(keyword: String): Map<Long, String> {
+    @CachePut(value = ["hotKeyword"], key = "'keywordCache'")
+    fun saveKeywordInCache(keyword: String): MutableMap<Long, String> {
         val cache = cacheManager.getCache("hotKeyword")
-        val cacheValue = cache?.get("keywordCache")?.get() as? MutableMap<Long, String> ?: mutableMapOf()
+        val cacheValue = (cache?.get("keywordCache")?.get() as? MutableMap<Long, String>) ?: mutableMapOf()
 
         val newId = (cacheValue.keys.maxOrNull() ?: 0L) + 1
         cacheValue[newId] = keyword
@@ -72,7 +67,6 @@ class SearchService(
         cache?.put("keywordCache", cacheValue)
         return cacheValue
     }
-
 
     @Transactional
     fun saveCachingKeywordInDB() {
@@ -86,5 +80,29 @@ class SearchService(
 
         cache?.evict("keywordCache")
     }
+
+    @CachePut(value = ["hotCategory"], key = "'categoryCache'")
+    fun saveCategoryInCache(category: Category): MutableMap<Long, Category> {
+        val cache = cacheManager.getCache("hotCategory")
+        val cacheValue = (cache?.get("categoryCache")?.get() as? MutableMap<Long, Category>) ?: mutableMapOf()
+
+        val newId = (cacheValue.keys.maxOrNull() ?: 0L) + 1
+        cacheValue[newId] = category
+        cache?.put("hotCategory", cacheValue)
+        return cacheValue
+    }
+
+    @Transactional
+    fun saveCachingCategoryInDB() {
+        val cache = cacheManager.getCache("hotCategory")
+        val cacheValue = cache?.get("categoryCache")?.get() as? MutableMap<Long, Category> ?: mutableMapOf()
+
+        cacheValue.let { cachedWords ->
+            val searchCategory = cachedWords.map { SearchCategory(it.value, LocalDate.now()) }
+            searchCategoryRepository.saveAll(searchCategory)
+        }
+        cache?.evict("hotCategory")
+    }
+
 
 }

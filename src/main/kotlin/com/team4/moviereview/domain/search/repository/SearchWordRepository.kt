@@ -11,4 +11,5 @@ interface SearchWordRepository: JpaRepository<SearchWord, Int> {
 
     @Query("select new com.team4.moviereview.domain.search.dto.SearchWordResponse( s.keyword, count(s)) from SearchWord s group by s.keyword order by count(s) desc, s.keyword desc limit :limitRank")
     fun findAllByLimit(limitRank: Int): List<SearchWordResponse>
+
 }
