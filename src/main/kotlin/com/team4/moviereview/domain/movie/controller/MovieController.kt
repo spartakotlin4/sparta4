@@ -74,4 +74,14 @@ class MovieController(
             .body(movieService.getMoviesByCategory(categoryName))
     }
 
+    @StopWatch
+    @GetMapping("/v2/category")
+    fun getMoviesByCategoryWithCache(
+        @RequestParam(value = "categoryName") categoryName: String,
+    ): ResponseEntity<List<MovieResponse>> {
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(movieService.getMoviesByCategoryWithCache(categoryName))
+    }
+
 }

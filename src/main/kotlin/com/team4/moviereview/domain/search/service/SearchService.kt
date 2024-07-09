@@ -1,7 +1,6 @@
 package com.team4.moviereview.domain.search.service
 
 import com.team4.moviereview.domain.category.model.Category
-import com.team4.moviereview.domain.category.service.CategoryService
 import com.team4.moviereview.domain.search.dto.SearchCategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.model.SearchCategory
@@ -46,12 +45,12 @@ class SearchService(
     }
 
 
-    @Cacheable(value = ["popular-categories"])
+    @Cacheable(value = ["popularCategoriesCache"], key = "'trendCategories'")
     fun getPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit, startDate)
     }
 
-    @CachePut("popular-categories")
+    @CachePut(value = ["popularCategoriesCache"], key = "'trendCategories'")
     fun refreshPopularCategoryWithCache(): List<SearchCategoryResponse> {
         return searchCategoryRepository.findAllByLimit(rankLimit, startDate)
     }

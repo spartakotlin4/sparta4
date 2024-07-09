@@ -6,6 +6,7 @@ import com.team4.moviereview.domain.movie.dto.*
 import com.team4.moviereview.domain.movie.repository.movieRepository.MovieRepository
 import com.team4.moviereview.domain.review.dto.ReviewResponse
 import com.team4.moviereview.domain.review.repository.ReviewRepository
+import com.team4.moviereview.domain.search.dto.SearchCategoryResponse
 import com.team4.moviereview.domain.search.dto.SearchWordResponse
 import com.team4.moviereview.domain.search.service.SearchService
 import com.team4.moviereview.infra.exception.ModelNotFoundException
@@ -103,6 +104,31 @@ class MovieServiceImpl(
     }
 
     override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
+        return getMovieByCategoryInDB(categoryName)
+    }
+
+    override fun getMoviesByCategoryWithCache(categoryName: String): List<MovieResponse> {
+        val resultCache = cacheManager.getCache("trendingCategoryResult")
+        val categoryCache = cacheManager.getCache("popularCategoriesCache")!!
+
+        val cachedMovies = resultCache?.get(categoryName)?.get() as? List<MovieResponse>
+        if (!cachedMovies.isNullOrEmpty()) {
+            return cachedMovies
+        }
+
+        val movieListWithCategory = getMovieByCategoryInDBWittCache(categoryName)
+
+        val isTrendingKeyword = categoryCache.get("trendCategories")?.get() as? List<SearchCategoryResponse>
+        val keywordExistsInCache = isTrendingKeyword?.any { it.categoryName == categoryName } ?: false
+
+        if (keywordExistsInCache) {
+            resultCache?.put(categoryName, movieListWithCategory)
+        }
+
+        return movieListWithCategory
+    }
+
+    private fun getMovieByCategoryInDB(categoryName: String): List<MovieResponse> {
         val movies = movieRepository.getMoviesByCategory(categoryName)
         val moviesId = movies.map { it.movieId }
         val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
@@ -116,6 +142,22 @@ class MovieServiceImpl(
 
         return movieListWithCategory
     }
+
+    private fun getMovieByCategoryInDBWittCache(categoryName: String): List<MovieResponse> {
+        val movies = movieRepository.getMoviesByCategory(categoryName)
+        val moviesId = movies.map { it.movieId }
+        val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
+        val categories = createCategoryMap(movieIdAndCategoriesName)
+        val movieListWithCategory = movieCombineWithCategory(movies, categories)
+
+        val category: Category? = categoryRepository.findByName(categoryName)
+        if (category != null) {
+            searchService.saveCategoryInCache(category)
+        }
+
+        return movieListWithCategory
+    }
+
 
 
     private fun createCursorPageResponse(
