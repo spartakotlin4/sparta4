@@ -89,10 +89,8 @@ class MovieServiceImpl(
 
         val category: Category? = categoryRepository.findByName(categoryName)
         if (category != null) {
-            searchService.saveCategoryInCache(category)
+            searchService.saveSearchedCategory(category)
         }
-
-
 
         return movieListWithCategory
     }
