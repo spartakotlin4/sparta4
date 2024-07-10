@@ -16,4 +16,7 @@ interface MovieService {
 
     fun getMoviesByCategory(categoryName: String): List<MovieResponse>
 
+    fun getMoviesByCategoryWithCache(categoryName: String): List<MovieResponse>
+
+    fun evictMovieListCache()
 }
