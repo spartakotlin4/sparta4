@@ -66,21 +66,21 @@ class MovieServiceImpl(
     }
 
     override fun searchMoviesWithCache(keyword: String, pageable: Pageable): List<MovieResponse> {
+        //1. 검색 키워드 저장
+        searchService.saveKeywordInCache(keyword)
+
         val resultCache = cacheManager.getCache("trendingResultCache")
         val keywordCache = cacheManager.getCache("trendingKeywordCache")!!
 
 
-        //1. 캐시에서 데이터 조회
+        //2. 캐시에서 데이터 조회
         val cachedMovies = resultCache?.get(keyword)?.get() as? List<MovieResponse>
         if (!cachedMovies.isNullOrEmpty()) {
             return cachedMovies
         }
 
-        //2. 캐시미스 -> db에서 조회
+        //3. 캐시미스 -> db에서 조회
         val movieListWithCategory = searchMoviesInDB(keyword, pageable)
-
-        //3. 검색 키워드 저장
-        searchService.saveKeywordInCache(keyword)
 
         // 4. trendingKeywordCache에 존재하는 keyword일 경우, 검색결과캐시에 저장
         val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse>
@@ -114,11 +114,17 @@ class MovieServiceImpl(
 
         val cachedMovies = resultCache?.get(categoryName)?.get() as? List<MovieResponse>
         if (!cachedMovies.isNullOrEmpty()) {
+
+            val category: Category? = categoryRepository.findByName(categoryName)
+            if (category != null) {
+                searchService.saveCategoryInCache(category)
+            }
+
             return cachedMovies
         }
 
-        val movieListWithCategory = getMovieByCategoryInDBWittCache(categoryName)
 
+        val movieListWithCategory = getMovieByCategoryInDBWittCache(categoryName)
         val isTrendingKeyword = categoryCache.get("trendCategories")?.get() as? List<SearchCategoryResponse>
         val keywordExistsInCache = isTrendingKeyword?.any { it.categoryName == categoryName } ?: false
 
@@ -201,7 +207,7 @@ class MovieServiceImpl(
                 it.title,
                 it.directors,
                 it.actors.split("#").filter { it1 -> it1.isNotEmpty() },
-                categoryMap[it.movieId]!!,
+                categoryMap[it.movieId] ?: mutableListOf(),
                 it.releaseDate,
                 round(it.rating * 100) / 100.0,
             )
