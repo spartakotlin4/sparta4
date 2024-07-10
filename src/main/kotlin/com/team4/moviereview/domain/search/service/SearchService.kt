@@ -58,7 +58,7 @@ class SearchService(
     @CachePut(value = ["hotKeyword"], key = "'keywordCache'")
     fun saveKeywordInCache(keyword: String): MutableMap<Long, String> {
         val cache = cacheManager.getCache("hotKeyword")
-        val cacheValue = (cache?.get("keywordCache")?.get() as? MutableMap<Long, String>) ?: mutableMapOf()
+        val cacheValue = cache?.get("keywordCache")?.get() as? MutableMap<Long, String> ?: mutableMapOf()
 
         val newId = (cacheValue.keys.maxOrNull() ?: 0L) + 1
         cacheValue[newId] = keyword
@@ -83,7 +83,7 @@ class SearchService(
     @CachePut(value = ["hotCategory"], key = "'categoryCache'")
     fun saveCategoryInCache(category: Category): MutableMap<Long, Category> {
         val cache = cacheManager.getCache("hotCategory")
-        val cacheValue = (cache?.get("categoryCache")?.get() as? MutableMap<Long, Category>) ?: mutableMapOf()
+        val cacheValue = cache?.get("categoryCache")?.get() as? MutableMap<Long, Category> ?: mutableMapOf()
 
         val newId = (cacheValue.keys.maxOrNull() ?: 0L) + 1
         cacheValue[newId] = category
