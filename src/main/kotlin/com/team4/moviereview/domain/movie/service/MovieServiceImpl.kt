@@ -13,6 +13,7 @@ import com.team4.moviereview.infra.exception.ModelNotFoundException
 import org.springframework.cache.CacheManager
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import kotlin.math.round
 
 @Service
 class MovieServiceImpl(
@@ -199,10 +200,10 @@ class MovieServiceImpl(
                 it.movieId,
                 it.title,
                 it.directors,
-                it.actors,
+                it.actors.split("#").filter { it1 -> it1.isNotEmpty() },
                 categoryMap[it.movieId]!!,
                 it.releaseDate,
-                it.rating,
+                round(it.rating * 100) / 100.0,
             )
         }
     }
@@ -217,10 +218,10 @@ class MovieServiceImpl(
             id = movie.movieId,
             title = movie.title,
             director = movie.directors,
-            actors = movie.actors,
+            actors = movie.actors.split("#").filter { it.isNotEmpty() },
             category = categoryMap[movie.movieId]!!,
             releaseDate = movie.releaseDate,
-            rating = movie.rating,
+            round(movie.rating * 100) / 100.0,
             reviews = reviews
         )
     }

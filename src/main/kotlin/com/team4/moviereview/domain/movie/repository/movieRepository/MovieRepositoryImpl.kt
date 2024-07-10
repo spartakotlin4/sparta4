@@ -79,8 +79,8 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 MovieData::class.java,
                 movie.id,
                 movie.title,
-                movie.director,
                 movie.actor,
+                movie.director,
                 movie.releaseDate,
                 review.rating.avg(),
             )
