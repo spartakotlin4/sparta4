@@ -76,7 +76,6 @@ class SearchService(
             val searchWords = cachedWords.map { SearchWord(it.value, LocalDate.now()) }
             searchWordRepository.saveAll(searchWords)
         }
-
         cache?.evict("keywordCache")
     }
 
@@ -102,6 +101,5 @@ class SearchService(
         }
         cache?.evict("hotCategory")
     }
-
 
 }

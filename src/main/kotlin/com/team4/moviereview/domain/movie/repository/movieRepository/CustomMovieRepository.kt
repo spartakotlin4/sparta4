@@ -18,6 +18,6 @@ interface CustomMovieRepository {
 
     fun filterMovies(request: FilterRequest, pageable: Pageable): List<MovieData>
 
-    fun getMoviesByCategory(categoryName: String): List<MovieData>
+    fun getMoviesByCategory(categoryName: String, pageable: Pageable): List<MovieData>
 
 }
