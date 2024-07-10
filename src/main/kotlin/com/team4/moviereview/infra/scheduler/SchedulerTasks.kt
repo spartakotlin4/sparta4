@@ -2,7 +2,6 @@ package com.team4.moviereview.infra.scheduler
 
 import com.team4.moviereview.domain.category.service.CategoryService
 import com.team4.moviereview.domain.movie.service.MovieService
-import com.team4.moviereview.domain.movie.service.MovieServiceImpl
 import com.team4.moviereview.domain.search.service.SearchService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
