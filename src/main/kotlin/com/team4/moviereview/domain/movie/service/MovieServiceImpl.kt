@@ -159,7 +159,6 @@ class MovieServiceImpl(
     }
 
 
-
     private fun createCursorPageResponse(
         movieList: List<MovieResponse>,
         cursorType: String,
@@ -226,6 +225,10 @@ class MovieServiceImpl(
         )
     }
 
+    override fun evictMovieListCache() {
+        cacheManager.getCache("trendingResultCache")?.clear()
+        cacheManager.getCache("trendingCategoryResult")?.clear()
+    }
 
 }
 
