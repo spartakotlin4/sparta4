@@ -33,7 +33,7 @@ class SearchController(
     @GetMapping("/v2/keyword")
     fun getPopularKeywordWithCache(): ResponseEntity<List<SearchWordResponse>> {
 
-        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywordWithCache(1))
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPopularKeywordWithCache())
     }
 
     @StopWatch
