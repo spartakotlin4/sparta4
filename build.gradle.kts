@@ -44,6 +44,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
     implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine")
 
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.h2database:h2")

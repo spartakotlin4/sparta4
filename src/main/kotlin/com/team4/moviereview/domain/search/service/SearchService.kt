@@ -20,16 +20,16 @@ class SearchService(
     private val searchWordRepository: SearchWordRepository,
     private val searchCategoryRepository: SearchCategoryRepository,
     private val cacheManager: CacheManager,
-    private val categoryService: CategoryService,
 ) {
+    private val startDate = LocalDate.now().minusDays(1)
     private val rankLimit = 10
 
     fun getPopularKeywords(): List<SearchWordResponse> {
-        return searchWordRepository.findAllByLimit(rankLimit)
+        return searchWordRepository.findAllByLimit(rankLimit, startDate)
     }
 
     fun getPopularCategory(): List<SearchCategoryResponse> {
-        return searchCategoryRepository.findAllByLimit(rankLimit)
+        return searchCategoryRepository.findAllByLimit(rankLimit,startDate)
     }
 
     fun saveSearchedKeyword(keyword: String) {
@@ -42,18 +42,18 @@ class SearchService(
 
     @Cacheable(value = ["trendingKeywordCache1"], key = "#key")
     fun getPopularKeywordWithCache(key: Long): List<SearchWordResponse> {
-        return searchWordRepository.findAllByLimit(rankLimit)
+        return searchWordRepository.findAllByLimit(rankLimit, startDate)
     }
 
 
     @Cacheable(value = ["popular-categories"])
     fun getPopularCategoryWithCache(): List<SearchCategoryResponse> {
-        return searchCategoryRepository.findAllByLimit(rankLimit)
+        return searchCategoryRepository.findAllByLimit(rankLimit, startDate)
     }
 
     @CachePut("popular-categories")
     fun refreshPopularCategoryWithCache(): List<SearchCategoryResponse> {
-        return searchCategoryRepository.findAllByLimit(rankLimit)
+        return searchCategoryRepository.findAllByLimit(rankLimit, startDate)
     }
 
     @CachePut(value = ["hotKeyword"], key = "'keywordCache'")

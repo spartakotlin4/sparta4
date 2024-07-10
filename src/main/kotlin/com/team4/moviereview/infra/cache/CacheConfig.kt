@@ -12,7 +12,6 @@ class CacheConfig {
 
     @Bean
     fun cacheManager(): CacheManager {
-        val cacheManager =ConcurrentMapCacheManager()
-        return cacheManager
+        return ConcurrentMapCacheManager()
     }
 }
