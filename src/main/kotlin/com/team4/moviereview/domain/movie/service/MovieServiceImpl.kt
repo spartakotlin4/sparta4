@@ -73,8 +73,9 @@ class MovieServiceImpl(
         val keywordCache = cacheManager.getCache("trendingKeywordCache")!!
 
 
+        val pageNum = pageable.pageNumber
         //2. 캐시에서 데이터 조회
-        val cachedMovies = resultCache?.get(keyword)?.get() as? List<MovieResponse>
+        val cachedMovies = resultCache?.get("${keyword}${pageNum}")?.get() as? List<MovieResponse>
         if (!cachedMovies.isNullOrEmpty()) {
             return cachedMovies
         }
@@ -84,10 +85,10 @@ class MovieServiceImpl(
 
         // 4. trendingKeywordCache에 존재하는 keyword일 경우, 검색결과캐시에 저장
         val isTrendingKeyword = keywordCache.get("trendKeyword")?.get() as? List<SearchWordResponse>
-        val keywordExistsInCache = isTrendingKeyword?.any { it.keyword == keyword } ?: false
+        val keywordExistsInCache = isTrendingKeyword?.any { it.keyword == keyword && pageNum == 0 } ?: false
 
         if (keywordExistsInCache) {
-            resultCache?.put(keyword, movieListWithCategory)
+            resultCache?.put("${keyword}${pageNum}", movieListWithCategory)
         }
 
         return movieListWithCategory
@@ -104,39 +105,40 @@ class MovieServiceImpl(
         return movieListWithCategory
     }
 
-    override fun getMoviesByCategory(categoryName: String): List<MovieResponse> {
-        return getMovieByCategoryInDB(categoryName)
+    override fun getMoviesByCategory(categoryName: String, pageable: Pageable): List<MovieResponse> {
+        return getMovieByCategoryInDB(categoryName, pageable)
     }
 
-    override fun getMoviesByCategoryWithCache(categoryName: String): List<MovieResponse> {
+    override fun getMoviesByCategoryWithCache(categoryName: String, pageable: Pageable): List<MovieResponse> {
+
         val resultCache = cacheManager.getCache("trendingCategoryResult")
         val categoryCache = cacheManager.getCache("popularCategoriesCache")!!
 
-        val cachedMovies = resultCache?.get(categoryName)?.get() as? List<MovieResponse>
-        if (!cachedMovies.isNullOrEmpty()) {
+        val pageNum = pageable.pageNumber
 
+        val cachedMovies = resultCache?.get("${categoryName}${pageNum}")?.get() as? List<MovieResponse>
+        if (!cachedMovies.isNullOrEmpty()) {
             val category: Category? = categoryRepository.findByName(categoryName)
             if (category != null) {
                 searchService.saveCategoryInCache(category)
             }
-
             return cachedMovies
         }
 
 
-        val movieListWithCategory = getMovieByCategoryInDBWittCache(categoryName)
+        val movieListWithCategory = getMovieByCategoryInDBWittCache(categoryName, pageable)
         val isTrendingKeyword = categoryCache.get("trendCategories")?.get() as? List<SearchCategoryResponse>
-        val keywordExistsInCache = isTrendingKeyword?.any { it.categoryName == categoryName } ?: false
+        val keywordExistsInCache = isTrendingKeyword?.any { it.categoryName == categoryName && pageNum == 0 } ?: false
 
         if (keywordExistsInCache) {
-            resultCache?.put(categoryName, movieListWithCategory)
+            resultCache?.put("${categoryName}${pageNum}", movieListWithCategory)
         }
 
         return movieListWithCategory
     }
 
-    private fun getMovieByCategoryInDB(categoryName: String): List<MovieResponse> {
-        val movies = movieRepository.getMoviesByCategory(categoryName)
+    private fun getMovieByCategoryInDB(categoryName: String, pageable: Pageable): List<MovieResponse> {
+        val movies = movieRepository.getMoviesByCategory(categoryName, pageable)
         val moviesId = movies.map { it.movieId }
         val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
         val categories = createCategoryMap(movieIdAndCategoriesName)
@@ -150,8 +152,8 @@ class MovieServiceImpl(
         return movieListWithCategory
     }
 
-    private fun getMovieByCategoryInDBWittCache(categoryName: String): List<MovieResponse> {
-        val movies = movieRepository.getMoviesByCategory(categoryName)
+    private fun getMovieByCategoryInDBWittCache(categoryName: String, pageable: Pageable): List<MovieResponse> {
+        val movies = movieRepository.getMoviesByCategory(categoryName, pageable)
         val moviesId = movies.map { it.movieId }
         val movieIdAndCategoriesName = movieRepository.getMoviesCategories(moviesId)
         val categories = createCategoryMap(movieIdAndCategoriesName)

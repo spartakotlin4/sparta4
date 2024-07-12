@@ -169,7 +169,7 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
         return movies
     }
 
-    override fun getMoviesByCategory(categoryName: String): List<MovieData> {
+    override fun getMoviesByCategory(categoryName: String, pageable: Pageable): List<MovieData> {
 
         // TODO : 추후에 동적으로 정렬기준이 생길수도
         // TODO : 추후에 페이지네이션으로 바꿀수도
@@ -193,6 +193,8 @@ class MovieRepositoryImpl : CustomMovieRepository, QueryDslSupport() {
                 movie.id
             )
             .orderBy(movie.releaseDate.desc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
             .fetch()
 
 

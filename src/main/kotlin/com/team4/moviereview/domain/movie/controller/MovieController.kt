@@ -43,7 +43,7 @@ class MovieController(
     }
 
     @StopWatch
-    @GetMapping("/search/v2")
+    @GetMapping("/v2/search")
     fun searchMoviesWithCache(
         @RequestParam(value = "keyword", required = true) keyword: String,
         pageable: Pageable,
@@ -67,21 +67,23 @@ class MovieController(
     @StopWatch
     @GetMapping("/v1/category")
     fun getMoviesByCategory(
-        @RequestParam(value = "categoryName") categoryName: String
+        @RequestParam(value = "categoryName") categoryName: String,
+        pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(movieService.getMoviesByCategory(categoryName))
+            .body(movieService.getMoviesByCategory(categoryName, pageable))
     }
 
     @StopWatch
     @GetMapping("/v2/category")
     fun getMoviesByCategoryWithCache(
         @RequestParam(value = "categoryName") categoryName: String,
+        pageable: Pageable,
     ): ResponseEntity<List<MovieResponse>> {
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(movieService.getMoviesByCategoryWithCache(categoryName))
+            .body(movieService.getMoviesByCategoryWithCache(categoryName, pageable))
     }
 
 }
